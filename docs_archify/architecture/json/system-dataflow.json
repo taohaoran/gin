@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": { "title": "gin 请求处理数据流", "quality_profile": "showcase", "locale": "zh-CN", "viewBox": [1280, 480] },
+  "stages": [ { "label": "接入" }, { "label": "路由" }, { "label": "处理" }, { "label": "输出" } ],
+  "nodes": [
+    { "id": "n1", "type": "external", "label": "net/http", "stage": 0, "row": 0 },
+    { "id": "n2", "type": "backend", "label": "Context 池化", "stage": 1, "row": 0 },
+    { "id": "n3", "type": "backend", "label": "路由树匹配", "stage": 1, "row": 1 },
+    { "id": "n4", "type": "backend", "label": "中间件链", "stage": 2, "row": 0 },
+    { "id": "n5", "type": "external", "label": "业务 Handler", "stage": 2, "row": 1 },
+    { "id": "n6", "type": "backend", "label": "绑定 / 渲染", "stage": 3, "row": 0 },
+    { "id": "n7", "type": "external", "label": "ResponseWriter", "stage": 3, "row": 1 }
+  ],
+  "flows": [
+    { "from": "n1", "to": "n2", "label": "请求", "variant": "emphasis", "route": "straight" },
+    { "from": "n2", "to": "n3", "label": "查表", "route": "vertical-channel" },
+    { "from": "n3", "to": "n4", "label": "命中链", "route": "vertical-channel" },
+    { "from": "n4", "to": "n5", "label": "Next", "route": "vertical-channel" },
+    { "from": "n5", "to": "n6", "label": "结果", "route": "vertical-channel" },
+    { "from": "n6", "to": "n7", "label": "写回", "variant": "emphasis", "route": "vertical-channel" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "主路径", "items": ["接入 → 上下文/路由 → 中间件链/业务 handler → 渲染写回"] }
+  ]
+}

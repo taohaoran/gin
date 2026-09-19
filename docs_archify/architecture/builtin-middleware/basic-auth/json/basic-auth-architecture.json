@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "BasicAuth 中间件架构图", "quality_profile": "showcase", "locale": "zh-CN" },
+  "components": [
+    { "id": "pairs", "type": "backend", "label": "processAccounts/authPairs", "pos": [330, 60], "size": [190, 60], "tag": "预编码凭证" },
+    { "id": "client", "type": "external", "label": "客户端请求", "pos": [40, 250], "size": [140, 60], "tag": "Authorization 头" },
+    { "id": "mw", "type": "backend", "label": "BasicAuthForRealm 闭包", "pos": [340, 250], "size": [180, 66], "tag": "auth.go:48" },
+    { "id": "cmp", "type": "external", "label": "subtle.ConstantTimeCompare", "pos": [670, 250], "size": [190, 60], "tag": "crypto/subtle 外部" },
+    { "id": "resp", "type": "external", "label": "401 响应", "pos": [670, 80], "size": [150, 56], "tag": "WWW-Authenticate" },
+    { "id": "ctx", "type": "backend", "label": "Context.Keys", "pos": [670, 420], "size": [150, 60], "tag": "c.Set(AuthUserKey)" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Gin 内置中间件", "wraps": ["mw", "pairs"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "client", "to": "mw", "label": "携带凭证", "variant": "emphasis" },
+    { "id": "c2", "from": "pairs", "to": "mw", "label": "预置凭证", "variant": "default", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c3", "from": "mw", "to": "cmp", "label": "逐对比对", "variant": "emphasis" },
+    { "id": "c4", "from": "cmp", "to": "resp", "label": "未命中→401", "variant": "dashed", "fromSide": "top", "toSide": "bottom" },
+    { "id": "c5", "from": "cmp", "to": "ctx", "label": "命中→写用户", "variant": "default", "fromSide": "bottom", "toSide": "top" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": ["启动期把 user:pass 预编码为 Basic 串", "常量时间比对防时序攻击", "认证成功用户名存于 c.Keys"] }
+  ]
+}

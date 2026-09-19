@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "Render 接口与 JSON 变体架构图", "quality_profile": "showcase", "locale": "zh-CN" },
+  "components": [
+    { "id": "ctx", "type": "frontend", "label": "c.JSON/c.Render", "pos": [30, 290], "size": [150, 60] },
+    { "id": "iface", "type": "backend", "label": "Render 接口", "pos": [250, 290], "size": [150, 60] },
+    { "id": "variants", "type": "backend", "label": "JSON 变体族", "pos": [470, 290], "size": [160, 60] },
+    { "id": "api", "type": "backend", "label": "codec/json API", "pos": [700, 290], "size": [150, 60] },
+    { "id": "w", "type": "backend", "label": "ResponseWriter", "pos": [920, 290], "size": [150, 60] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "ctx", "to": "iface", "label": "两阶段", "variant": "emphasis" },
+    { "id": "c2", "from": "iface", "to": "variants", "label": "多态" },
+    { "id": "c3", "from": "variants", "to": "api", "label": "Marshal", "variant": "emphasis" },
+    { "id": "c4", "from": "api", "to": "w", "label": "写 body", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "两阶段错误处理", "items": ["Render 出错 c.Error+c.Abort", "空 body 状态码只写 Content-Type"] }
+  ]
+}

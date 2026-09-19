@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": { "title": "Recovery 捕获 panic 主路径时序", "quality_profile": "showcase", "locale": "zh-CN", "viewBox": [1080, 720], "column_fit": "spread" },
+  "participants": [
+    { "id": "next", "type": "backend", "label": "下游链" },
+    { "id": "mw", "type": "backend", "label": "Recovery" },
+    { "id": "dump", "type": "backend", "label": "dump栈" },
+    { "id": "handle", "type": "backend", "label": "恢复函数" },
+    { "id": "ctx", "type": "backend", "label": "Context" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "next", "to": "mw", "y": 170, "label": "下游 panic 被 defer recover 捕获", "variant": "dashed" },
+    { "id": "m2", "from": "mw", "to": "dump", "y": 250, "label": "判 broken pipe 后 dump+stack", "variant": "default" },
+    { "id": "m3", "from": "dump", "to": "mw", "y": 320, "label": "脱敏请求/栈帧", "variant": "return" },
+    { "id": "m4", "from": "mw", "to": "handle", "y": 400, "label": "handle(c, rec)", "variant": "emphasis" },
+    { "id": "m5", "from": "handle", "to": "ctx", "y": 480, "label": "c.Error(e) 入链", "variant": "default" },
+    { "id": "m6", "from": "handle", "to": "ctx", "y": 560, "label": "AbortWithStatus(500)", "variant": "emphasis" }
+  ]
+}

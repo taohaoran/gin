@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "路径与工具函数调用架构图", "quality_profile": "showcase", "locale": "zh-CN" },
+  "components": [
+    { "id": "engine", "type": "backend", "label": "Engine/RouterGroup/树", "pos": [40, 200], "size": [160, 60], "tag": "core/router-tree" },
+    { "id": "pu", "type": "backend", "label": "cleanPath/joinPaths/resolveAddress", "pos": [280, 200], "size": [240, 60], "tag": "path.go/utils.go" },
+    { "id": "assert", "type": "backend", "label": "assert1/nameOfFunction", "pos": [620, 200], "size": [160, 60], "tag": "不可达断言/反射" },
+    { "id": "stdlib", "type": "external", "label": "标准库 path/os/runtime", "pos": [860, 200], "size": [180, 60], "tag": "外部：Go 标准库" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "router-tree", "wraps": ["pu", "assert"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "engine", "to": "pu", "label": "路径处理", "variant": "emphasis" },
+    { "id": "c2", "from": "pu", "to": "assert", "label": "断言/反射", "variant": "default" },
+    { "id": "c3", "from": "assert", "to": "stdlib", "label": "透传", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "主路径", "items": ["cleanPath 单遍 r/w 扫描，未修改零分配返回子串", "assert1 把注册期不变量 fail-fast 前移到启动期"] }
+  ]
+}

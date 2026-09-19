@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": { "title": "c.JSON 渲染主路径时序图", "quality_profile": "showcase", "locale": "zh-CN", "viewBox": [1080, 820] },
+  "participants": [
+    { "id": "ctx", "type": "frontend", "label": "Context" },
+    { "id": "render", "type": "backend", "label": "render.JSON" },
+    { "id": "api", "type": "backend", "label": "json API" },
+    { "id": "w", "type": "backend", "label": "ResponseW" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "ctx", "to": "render", "y": 160, "label": "c.JSON(code, obj) 构造 JSON{Data:obj}", "variant": "emphasis" },
+    { "id": "m2", "from": "ctx", "to": "render", "y": 240, "label": "Render.Render(w) 内先 WriteContentType", "variant": "emphasis" },
+    { "id": "m3", "from": "render", "to": "w", "y": 320, "label": "写 Content-Type: application/json; charset=utf-8" },
+    { "id": "m4", "from": "render", "to": "api", "y": 400, "label": "API.Marshal(obj)", "variant": "emphasis" },
+    { "id": "m5", "from": "api", "to": "render", "y": 480, "label": "返回 jsonBytes / err", "variant": "return" },
+    { "id": "m6", "from": "render", "to": "w", "y": 560, "label": "w.Write(jsonBytes)", "variant": "emphasis" },
+    { "id": "m7", "from": "render", "to": "ctx", "y": 640, "label": "error 返回；非 nil 时 c.Error+c.Abort", "variant": "return" }
+  ]
+}

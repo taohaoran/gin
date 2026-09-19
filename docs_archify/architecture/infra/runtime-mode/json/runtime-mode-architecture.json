@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "运行时模式与全局输出架构图", "quality_profile": "showcase", "locale": "zh-CN" },
+  "components": [
+    { "id": "init", "type": "backend", "label": "init()", "pos": [40, 80], "size": [140, 56], "tag": "mode.go:52" },
+    { "id": "writer", "type": "backend", "label": "DefaultWriter/ErrorWriter", "pos": [650, 80], "size": [190, 56], "tag": "全局 io.Writer" },
+    { "id": "env", "type": "external", "label": "GIN_MODE 环境变量", "pos": [40, 250], "size": [160, 60], "tag": "mode.go:17" },
+    { "id": "set", "type": "backend", "label": "SetMode", "pos": [340, 250], "size": [150, 60], "tag": "mode.go:58" },
+    { "id": "atom", "type": "backend", "label": "ginMode int32 + modeName", "pos": [650, 250], "size": [190, 66], "tag": "atomic 读写" },
+    { "id": "binding", "type": "backend", "label": "binding 开关", "pos": [340, 430], "size": [160, 60], "tag": "Validator/Decoder" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Gin 运行模式基础设施", "wraps": ["set", "atom", "writer", "binding"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "init", "to": "set", "label": "读 env", "variant": "default" },
+    { "id": "c2", "from": "env", "to": "set", "label": "debug/release/test", "variant": "emphasis" },
+    { "id": "c3", "from": "set", "to": "atom", "label": "atomic.Store", "variant": "emphasis" },
+    { "id": "c4", "from": "atom", "to": "writer", "label": "控制调试输出", "variant": "default", "fromSide": "top", "toSide": "bottom" },
+    { "id": "c5", "from": "set", "to": "binding", "label": "开关转发", "variant": "dashed", "fromSide": "bottom", "toSide": "top" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": ["ginMode 用 int32+atomic 保证并发安全", "空值在测试下自动切 TestMode", "未知模式字符串直接 panic"] }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": { "title": "gin 请求生命周期时序", "quality_profile": "showcase", "locale": "zh-CN", "viewBox": [1280, 820], "column_fit": "spread" },
+  "participants": [
+    { "id": "client", "type": "external", "label": "客户端" },
+    { "id": "server", "type": "external", "label": "net/http" },
+    { "id": "engine", "type": "backend", "label": "Engine" },
+    { "id": "tree", "type": "backend", "label": "路由树" },
+    { "id": "ctx", "type": "backend", "label": "Context 链" },
+    { "id": "biz", "type": "external", "label": "业务 Handler" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "client", "to": "server", "y": 170, "label": "HTTP 请求", "variant": "emphasis" },
+    { "id": "m2", "from": "server", "to": "engine", "y": 240, "label": "ServeHTTP(w,req)" },
+    { "id": "m3", "from": "engine", "to": "ctx", "y": 310, "label": "从池取 Context 并 reset" },
+    { "id": "m4", "from": "engine", "to": "tree", "y": 380, "label": "getValue 匹配路由", "variant": "emphasis" },
+    { "id": "m5", "from": "tree", "to": "engine", "y": 440, "label": "返回 handler 链与路径参数", "variant": "return" },
+    { "id": "m6", "from": "engine", "to": "ctx", "y": 500, "label": "赋值 handlers/index 并 Next 调用链" },
+    { "id": "m7", "from": "ctx", "to": "biz", "y": 570, "label": "依次执行中间件 → 业务 handler" },
+    { "id": "m8", "from": "biz", "to": "ctx", "y": 640, "label": "绑定参数 / 渲染响应", "variant": "return" },
+    { "id": "m9", "from": "engine", "to": "server", "y": 710, "label": "写响应头与 body，回收 Context", "variant": "return" }
+  ]
+}

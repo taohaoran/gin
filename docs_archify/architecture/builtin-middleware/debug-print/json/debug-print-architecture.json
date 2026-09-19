@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "debug-print 路由调试输出架构图", "quality_profile": "showcase", "locale": "zh-CN" },
+  "components": [
+    { "id": "reg", "type": "backend", "label": "路由注册(RouterGroup)", "pos": [40, 240], "size": [180, 64], "tag": "注册时触发" },
+    { "id": "route", "type": "backend", "label": "debugPrintRoute", "pos": [340, 240], "size": [160, 60], "tag": "debug.go:32" },
+    { "id": "hook", "type": "backend", "label": "DebugPrintRouteFunc", "pos": [650, 240], "size": [180, 60], "tag": "可替换钩子" },
+    { "id": "dbg", "type": "backend", "label": "debugPrint", "pos": [340, 410], "size": [160, 60], "tag": "debug.go:56" },
+    { "id": "writer", "type": "external", "label": "DefaultWriter", "pos": [650, 410], "size": [160, 60], "tag": "os.Stdout 外部" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Gin 调试打印", "wraps": ["route", "dbg", "hook"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "reg", "to": "route", "label": "注册一条路由", "variant": "emphasis" },
+    { "id": "c2", "from": "route", "to": "hook", "label": "非nil则转交", "variant": "dashed" },
+    { "id": "c3", "from": "route", "to": "dbg", "variant": "default", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c4", "from": "dbg", "to": "writer", "label": "[GIN-debug]", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": ["仅 Debug 模式输出路由注册", "nameOfFunction 取末个 handler 名", "DebugPrintRouteFunc 可整体替换格式"] }
+  ]
+}

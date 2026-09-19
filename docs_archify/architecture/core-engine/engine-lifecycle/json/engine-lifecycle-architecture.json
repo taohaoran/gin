@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "Gin 引擎生命周期组件架构图", "quality_profile": "showcase", "locale": "zh-CN" },
+  "components": [
+    { "id": "nethttp", "type": "external", "label": "net/http 服务器", "pos": [40, 300], "size": [150, 60], "tag": "外部：标准库" },
+    { "id": "engine", "type": "backend", "label": "Engine（gin.go）", "pos": [300, 290], "size": [170, 80], "tag": "核心入口" },
+    { "id": "pool", "type": "backend", "label": "sync.Pool Context 复用", "pos": [300, 150], "size": [170, 56], "tag": "池化" },
+    { "id": "trees", "type": "database", "label": "methodTrees 路由树", "pos": [560, 290], "size": [160, 60], "tag": "radix-tree 叶子" },
+    { "id": "rw", "type": "backend", "label": "responseWriter 包装", "pos": [560, 430], "size": [160, 60], "tag": "response-writer 叶子" },
+    { "id": "h2c", "type": "external", "label": "h2c / http3 外部依赖", "pos": [60, 460], "size": [170, 56], "tag": "不在本仓库源码内" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "gin 引擎", "wraps": ["engine", "pool", "trees", "rw"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "nethttp", "to": "engine", "label": "ServeHTTP(w, req)", "variant": "emphasis" },
+    { "id": "c2", "from": "engine", "to": "pool", "label": "Get / Put", "variant": "default" },
+    { "id": "c3", "from": "engine", "to": "trees", "label": "getValue 查表", "variant": "emphasis" },
+    { "id": "c4", "from": "engine", "to": "rw", "label": "reset / WriteHeaderNow", "variant": "default" },
+    { "id": "c5", "from": "engine", "to": "h2c", "label": "Handler() 包装", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "主路径", "items": ["每请求池化取 Context，reset 后查表派发，结束归还", "sync.Once 首次请求还原 \\: 转义"] }
+  ]
+}

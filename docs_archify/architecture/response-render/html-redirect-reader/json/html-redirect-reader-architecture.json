@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "HTML/Redirect/Reader 渲染器架构图", "quality_profile": "showcase", "locale": "zh-CN" },
+  "components": [
+    { "id": "ctx", "type": "frontend", "label": "c.HTML/c.Redirect", "pos": [30, 290], "size": [150, 60] },
+    { "id": "iface", "type": "backend", "label": "HTMLRender 接口", "pos": [250, 290], "size": [160, 60] },
+    { "id": "debug", "type": "backend", "label": "HTMLDebug", "pos": [480, 160], "size": [150, 55] },
+    { "id": "prod", "type": "backend", "label": "HTMLProduction", "pos": [480, 250], "size": [150, 55] },
+    { "id": "rd", "type": "backend", "label": "Redirect/Reader", "pos": [480, 340], "size": [150, 55] },
+    { "id": "w", "type": "backend", "label": "ResponseWriter", "pos": [730, 290], "size": [150, 60] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "ctx", "to": "iface", "label": "Instance", "variant": "emphasis" },
+    { "id": "c2", "from": "iface", "to": "debug" },
+    { "id": "c3", "from": "iface", "to": "prod" },
+    { "id": "c4", "from": "iface", "to": "rd" },
+    { "id": "c5", "from": "debug", "to": "w", "label": "模板执行", "variant": "emphasis" },
+    { "id": "c6", "from": "prod", "to": "w" },
+    { "id": "c7", "from": "rd", "to": "w" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": ["HTMLDebug 解析失败 panic", "Reader 用 io.Copy 流式透传"] }
+  ]
+}

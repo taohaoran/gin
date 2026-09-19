@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "JSON 后端抽象与编译期分派架构图", "quality_profile": "showcase", "locale": "zh-CN" },
+  "components": [
+    { "id": "consumer", "type": "frontend", "label": "binding/render 调用", "pos": [30, 290], "size": [150, 60] },
+    { "id": "api", "type": "backend", "label": "API (Core 接口)", "pos": [280, 290], "size": [150, 60] },
+    { "id": "default", "type": "backend", "label": "encoding/json 默认", "pos": [560, 120], "size": [180, 55] },
+    { "id": "jsoniter", "type": "external", "label": "jsoniter 后端", "pos": [560, 200], "size": [180, 55] },
+    { "id": "sonic", "type": "external", "label": "sonic 后端", "pos": [560, 280], "size": [180, 55] },
+    { "id": "gojson", "type": "external", "label": "go_json 后端", "pos": [560, 360], "size": [180, 55] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "consumer", "to": "api", "label": "API.Marshal", "variant": "emphasis" },
+    { "id": "c2", "from": "default", "to": "api", "label": "init 赋值" },
+    { "id": "c3", "from": "jsoniter", "to": "api" },
+    { "id": "c4", "from": "sonic", "to": "api" },
+    { "id": "c5", "from": "gojson", "to": "api" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "分派机制", "items": ["编译期仅一个后端参与构建", "init() 把选中后端赋给 API，sonic 限三平台"] }
+  ]
+}

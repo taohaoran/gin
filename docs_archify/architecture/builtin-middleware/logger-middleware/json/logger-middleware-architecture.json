@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "Logger 中间件架构图", "quality_profile": "showcase", "locale": "zh-CN" },
+  "components": [
+    { "id": "client", "type": "external", "label": "入站 HTTP 请求", "pos": [40, 240], "size": [140, 60], "tag": "net/http 外部" },
+    { "id": "mw", "type": "backend", "label": "LoggerWithConfig 闭包", "pos": [340, 240], "size": [190, 70], "tag": "logger.go:245" },
+    { "id": "next", "type": "backend", "label": "c.Next() 下游链", "pos": [660, 240], "size": [160, 64], "tag": "context.go:198" },
+    { "id": "fmt", "type": "backend", "label": "defaultLogFormatter", "pos": [340, 430], "size": [180, 60], "tag": "logger.go:167" },
+    { "id": "writer", "type": "external", "label": "io.Writer 输出", "pos": [660, 430], "size": [150, 60], "tag": "DefaultWriter" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Gin 内置中间件", "wraps": ["mw", "fmt"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "client", "to": "mw", "label": "进入", "variant": "emphasis" },
+    { "id": "c2", "from": "mw", "to": "next", "label": "c.Next()", "variant": "emphasis" },
+    { "id": "c3", "from": "mw", "to": "fmt", "label": "计时后取参", "variant": "default", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c4", "from": "fmt", "to": "writer", "label": "格式化串", "variant": "default" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": ["先计时再 c.Next()，返回后取状态码与耗时", "SkipPath/Skip/SkipQueryString 命中则跳过", "isatty 检测决定 ANSI 彩色输出"] }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": { "title": "getValue 路由匹配主路径数据流", "quality_profile": "showcase", "locale": "zh-CN", "viewBox": [1200, 520] },
+  "stages": [
+    { "label": "输入" },
+    { "label": "静态匹配" },
+    { "label": "参数取值" },
+    { "label": "回滚兜底" },
+    { "label": "输出" }
+  ],
+  "nodes": [
+    { "id": "n0", "type": "frontend", "label": "请求 rPath", "stage": 0, "row": 0 },
+    { "id": "n1", "type": "backend", "label": "indices 静态匹配", "stage": 1, "row": 0 },
+    { "id": "n2", "type": "backend", "label": "param/catchAll 取值", "stage": 2, "row": 0 },
+    { "id": "n3", "type": "database", "label": "skippedNode 回滚", "stage": 3, "row": 1 },
+    { "id": "n4", "type": "backend", "label": "handlers / tsr", "stage": 4, "row": 0 }
+  ],
+  "flows": [
+    { "from": "n0", "to": "n1", "label": "前缀匹配", "variant": "emphasis", "route": "straight" },
+    { "from": "n1", "to": "n2", "label": "wildChild 下沉", "variant": "emphasis", "route": "straight" },
+    { "from": "n1", "to": "n3", "label": "未命中弹栈", "variant": "dashed", "route": "bottom-channel" },
+    { "from": "n2", "to": "n4", "label": "命中", "variant": "emphasis", "route": "straight" },
+    { "from": "n3", "to": "n4", "label": "恢复后命中", "variant": "dashed", "route": "straight" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "主路径", "items": ["静态先走、wildcard 末尾兜底，走错靠压栈快照回滚", "命中填 handlers/params，未命中返回 tsr 建议"] }
+  ]
+}
