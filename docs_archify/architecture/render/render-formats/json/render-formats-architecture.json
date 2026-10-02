@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "render-formats 架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "render/render-formats/render-formats-architecture.html"
+  },
+  "components": [
+    { "id": "ctx", "type": "backend", "label": "Context 输出方法", "pos": [40, 300], "size": [150, 60] },
+    { "id": "json", "type": "backend", "label": "JSON 家族", "pos": [430, 80], "size": [130, 50], "tag": "6 种变体" },
+    { "id": "xml", "type": "backend", "label": "XML", "pos": [600, 80], "size": [120, 50] },
+    { "id": "yaml", "type": "backend", "label": "YAML", "pos": [430, 150], "size": [130, 50] },
+    { "id": "toml", "type": "backend", "label": "TOML", "pos": [600, 150], "size": [120, 50] },
+    { "id": "mp", "type": "backend", "label": "MsgPack", "pos": [430, 220], "size": [130, 50] },
+    { "id": "pb", "type": "backend", "label": "Protobuf", "pos": [600, 220], "size": [120, 50] },
+    { "id": "bson", "type": "backend", "label": "BSON", "pos": [430, 290], "size": [130, 50] },
+    { "id": "str", "type": "backend", "label": "String", "pos": [600, 380], "size": [120, 50] },
+    { "id": "html", "type": "backend", "label": "HTML", "pos": [430, 450], "size": [130, 50] },
+    { "id": "data", "type": "backend", "label": "Data", "pos": [600, 450], "size": [120, 50] },
+    { "id": "reader", "type": "backend", "label": "Reader", "pos": [430, 520], "size": [130, 50] },
+    { "id": "pdf", "type": "backend", "label": "PDF", "pos": [600, 520], "size": [120, 50] },
+    { "id": "redir", "type": "backend", "label": "Redirect", "pos": [430, 590], "size": [130, 50] },
+    { "id": "ext", "type": "external", "label": "序列化/模板库", "pos": [820, 300], "size": [160, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "结构化数据渲染", "wraps": ["json", "xml", "yaml", "toml", "mp", "pb", "bson"] },
+    { "kind": "region", "label": "文本/模板/二进制/重定向", "wraps": ["str", "html", "data", "reader", "pdf", "redir"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "ctx", "to": "json", "label": "c.JSON", "variant": "emphasis" },
+    { "id": "c2", "from": "ctx", "to": "html", "label": "c.HTML" },
+    { "id": "c3", "from": "json", "to": "ext", "label": "序列化" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "统一 Render 协议", "items": ["各自定 Content-Type", "Render 写字节", "失败返 error"] }
+  ]
+}

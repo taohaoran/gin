@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "binding-core 架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "binding/binding-core/binding-core-architecture.html"
+  },
+  "components": [
+    { "id": "ctx", "type": "backend", "label": "Context 绑定入口", "pos": [40, 280], "size": [150, 60], "tag": "调用方" },
+    { "id": "iface", "type": "backend", "label": "Binding 接口族", "pos": [280, 130], "size": [160, 60], "tag": "Binding/BindingBody/BindingUri" },
+    { "id": "validate", "type": "backend", "label": "validate 统一校验", "pos": [280, 290], "size": [160, 60] },
+    { "id": "dv", "type": "backend", "label": "defaultValidator", "pos": [280, 450], "size": [160, 60], "tag": "StructValidator" },
+    { "id": "setter", "type": "backend", "label": "setter 接口", "pos": [560, 110], "size": [160, 60] },
+    { "id": "fsource", "type": "backend", "label": "formSource 表单源", "pos": [560, 220], "size": [160, 60], "tag": "query/form/header/uri" },
+    { "id": "mp", "type": "backend", "label": "multipartRequest", "pos": [560, 330], "size": [160, 60], "tag": "文件上传" },
+    { "id": "setform", "type": "backend", "label": "setByForm 类型解析", "pos": [560, 450], "size": [160, 60], "tag": "反射赋值" },
+    { "id": "extval", "type": "external", "label": "validator/v10 引擎", "pos": [820, 450], "size": [150, 60] },
+    { "id": "extjson", "type": "external", "label": "codec/json", "pos": [820, 560], "size": [150, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "绑定接口与校验", "wraps": ["iface", "validate", "dv"] },
+    { "kind": "region", "label": "表单反射映射引擎", "wraps": ["setter", "fsource", "mp", "setform"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "ctx", "to": "iface", "label": "Bind", "variant": "emphasis" },
+    { "id": "c2", "from": "iface", "to": "validate", "label": "解码后校验" },
+    { "id": "c3", "from": "validate", "to": "dv", "label": "ValidateStruct" },
+    { "id": "c4", "from": "dv", "to": "extval", "label": "Struct 校验" },
+    { "id": "c5", "from": "iface", "to": "setter", "label": "form/query/header/uri" },
+    { "id": "c6", "from": "setter", "to": "fsource", "label": "TrySet" },
+    { "id": "c7", "from": "setter", "to": "mp", "label": "文件字段" },
+    { "id": "c8", "from": "setter", "to": "setform", "label": "取值" },
+    { "id": "c9", "from": "setform", "to": "extjson", "label": "嵌套 struct/map" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": ["接口族统一 Bind 协议", "反射把 map 写入 struct", "校验延迟初始化"] }
+  ]
+}

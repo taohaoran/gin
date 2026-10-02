@@ -1,26 +1,42 @@
 {
   "schema_version": 1,
   "diagram_type": "dataflow",
-  "meta": { "title": "gin 请求处理数据流", "quality_profile": "showcase", "locale": "zh-CN", "viewBox": [1280, 480] },
-  "stages": [ { "label": "接入" }, { "label": "路由" }, { "label": "处理" }, { "label": "输出" } ],
+  "meta": { "title": "gin 请求数据流", "output": "system-dataflow.html", "quality_profile": "standard", "locale": "zh-CN", "viewBox": [1120, 600] },
+  "stages": [
+    { "label": "请求入口" },
+    { "label": "路由匹配" },
+    { "label": "参数解析" },
+    { "label": "业务处理" },
+    { "label": "响应输出" }
+  ],
   "nodes": [
-    { "id": "n1", "type": "external", "label": "net/http", "stage": 0, "row": 0 },
-    { "id": "n2", "type": "backend", "label": "Context 池化", "stage": 1, "row": 0 },
-    { "id": "n3", "type": "backend", "label": "路由树匹配", "stage": 1, "row": 1 },
-    { "id": "n4", "type": "backend", "label": "中间件链", "stage": 2, "row": 0 },
-    { "id": "n5", "type": "external", "label": "业务 Handler", "stage": 2, "row": 1 },
-    { "id": "n6", "type": "backend", "label": "绑定 / 渲染", "stage": 3, "row": 0 },
-    { "id": "n7", "type": "external", "label": "ResponseWriter", "stage": 3, "row": 1 }
+    { "id": "req",    "type": "frontend", "label": "客户端请求", "stage": 0, "row": 0 },
+    { "id": "httpsrv","type": "external", "label": "net/http 标准库", "stage": 0, "row": 1 },
+    { "id": "router", "type": "backend",  "label": "路由匹配", "stage": 1, "row": 0 },
+    { "id": "ctx",    "type": "backend",  "label": "Context 上下文", "stage": 1, "row": 1 },
+    { "id": "mw",     "type": "backend",  "label": "中间件链", "stage": 2, "row": 0 },
+    { "id": "bind",   "type": "backend",  "label": "绑定解析", "stage": 2, "row": 1 },
+    { "id": "valid",  "type": "security", "label": "参数校验", "stage": 2, "row": 2 },
+    { "id": "handler","type": "backend",  "label": "业务处理器", "stage": 3, "row": 0 },
+    { "id": "errs",   "type": "backend",  "label": "错误聚合", "stage": 3, "row": 1 },
+    { "id": "rend",   "type": "backend",  "label": "渲染器", "stage": 4, "row": 0 },
+    { "id": "wrt",    "type": "backend",  "label": "响应写入", "stage": 4, "row": 1 },
+    { "id": "resp",   "type": "frontend", "label": "客户端响应", "stage": 4, "row": 2 }
   ],
   "flows": [
-    { "from": "n1", "to": "n2", "label": "请求", "variant": "emphasis", "route": "straight" },
-    { "from": "n2", "to": "n3", "label": "查表", "route": "vertical-channel" },
-    { "from": "n3", "to": "n4", "label": "命中链", "route": "vertical-channel" },
-    { "from": "n4", "to": "n5", "label": "Next", "route": "vertical-channel" },
-    { "from": "n5", "to": "n6", "label": "结果", "route": "vertical-channel" },
-    { "from": "n6", "to": "n7", "label": "写回", "variant": "emphasis", "route": "vertical-channel" }
-  ],
-  "cards": [
-    { "dot": "cyan", "title": "主路径", "items": ["接入 → 上下文/路由 → 中间件链/业务 handler → 渲染写回"] }
+    { "from": "req",     "to": "httpsrv", "label": "HTTP 请求", "variant": "emphasis", "route": "straight", "labelAt": [100, 201] },
+    { "from": "httpsrv", "to": "router",  "label": "ServeHTTP 分发", "variant": "emphasis", "route": "straight" },
+    { "from": "router",  "to": "ctx",     "label": "匹配结果", "variant": "emphasis", "route": "straight", "labelAt": [315, 201] },
+    { "from": "ctx",     "to": "mw",      "label": "Next 链执行", "variant": "emphasis", "route": "straight" },
+    { "from": "mw",      "to": "bind",    "label": "解析参数与请求体", "variant": "emphasis", "route": "straight", "labelAt": [530, 201] },
+    { "from": "bind",    "to": "valid",   "label": "结构校验", "variant": "dashed", "route": "straight", "labelAt": [530, 315] },
+    { "from": "bind",    "to": "handler", "label": "绑定成功", "variant": "emphasis", "route": "straight" },
+    { "from": "valid",   "to": "handler", "label": "校验通过", "variant": "dashed", "route": "straight" },
+    { "from": "handler", "to": "rend",    "label": "输出数据", "variant": "emphasis", "route": "straight" },
+    { "from": "rend",    "to": "wrt",     "label": "写响应", "variant": "emphasis", "route": "straight", "labelAt": [960, 201] },
+    { "from": "wrt",     "to": "resp",    "label": "响应返回", "variant": "emphasis", "route": "straight", "labelAt": [960, 315] },
+    { "from": "bind",    "to": "errs",    "label": "绑定失败", "variant": "dashed", "route": "bottom-channel" },
+    { "from": "handler", "to": "errs",    "label": "panic/错误", "variant": "dashed", "route": "bottom-channel", "labelAt": [745, 233] },
+    { "from": "errs",    "to": "rend",    "label": "JSON 错误响应", "variant": "dashed", "route": "vertical-channel", "labelAt": [745, 315] }
   ]
 }

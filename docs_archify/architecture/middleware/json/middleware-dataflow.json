@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "中间件链请求数据流",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "middleware/middleware-dataflow.html"
+  },
+  "stages": [
+    {
+      "label": "入口"
+    },
+    {
+      "label": "中间件处理"
+    },
+    {
+      "label": "业务产出"
+    },
+    {
+      "label": "观测输出"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "external",
+      "label": "HTTP 请求",
+      "stage": 0,
+      "row": 0
+    },
+    {
+      "id": "n2",
+      "type": "backend",
+      "label": "中间件组",
+      "stage": 1,
+      "row": 0
+    },
+    {
+      "id": "n3",
+      "type": "backend",
+      "label": "业务处理器",
+      "stage": 2,
+      "row": 0
+    },
+    {
+      "id": "n4",
+      "type": "database",
+      "label": "访问日志",
+      "stage": 3,
+      "row": 0
+    },
+    {
+      "id": "n5",
+      "type": "database",
+      "label": "c.Errors 聚合",
+      "stage": 3,
+      "row": 1
+    }
+  ],
+  "flows": [
+    {
+      "from": "n1",
+      "to": "n2",
+      "label": "请求",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "from": "n2",
+      "to": "n3",
+      "label": "放行",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "from": "n3",
+      "to": "n4",
+      "label": "状态/耗时",
+      "route": "straight"
+    },
+    {
+      "from": "n3",
+      "to": "n5",
+      "label": "错误",
+      "route": "bottom-channel"
+    }
+  ]
+}

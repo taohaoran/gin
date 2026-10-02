@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "基数树路由结构架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "routing/tree/tree-architecture.html"
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "注册/请求方", "pos": [60, 90], "size": [140, 60] },
+    { "id": "engine", "type": "backend", "label": "Engine", "pos": [360, 90], "size": [140, 60] },
+    { "id": "trees", "type": "backend", "label": "methodTrees 按方法分棵", "pos": [360, 210], "size": [160, 60] },
+    { "id": "getroot", "type": "backend", "label": "GET 树 root", "pos": [660, 150], "size": [140, 60] },
+    { "id": "postroot", "type": "backend", "label": "POST 树 root", "pos": [660, 270], "size": [140, 60] },
+    { "id": "staticn", "type": "backend", "label": "静态节点 static", "pos": [360, 380], "size": [140, 60] },
+    { "id": "paramn", "type": "backend", "label": ":param 参数节点", "pos": [600, 380], "size": [140, 60] },
+    { "id": "catchn", "type": "backend", "label": "*catchAll 通配节点", "pos": [840, 380], "size": [150, 60] },
+    { "id": "params", "type": "database", "label": "Params 输出", "pos": [600, 510], "size": [140, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "基数树（tree.go，httprouter 血缘）", "wraps": ["trees", "getroot", "postroot", "staticn", "paramn", "catchn", "params"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "user", "to": "engine", "label": "注册/查找", "variant": "emphasis" },
+    { "id": "c2", "from": "engine", "to": "trees", "label": "trees 字段" },
+    { "id": "c3", "from": "trees", "to": "getroot", "label": "GET 树" },
+    { "id": "c4", "from": "trees", "to": "postroot", "label": "POST 树" },
+    { "id": "c5", "from": "getroot", "to": "staticn", "label": "静态子节点" },
+    { "id": "c6", "from": "getroot", "to": "paramn", "label": "通配子节点" },
+    { "id": "c7", "from": "paramn", "to": "catchn", "label": "catchAll 收尾" },
+    { "id": "c8", "from": "paramn", "to": "params", "label": "getValue 取值", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "优先级排序", "items": [
+      "静态子节点按 indices 索引",
+      "通配子节点恒在 children 末尾",
+      "priority 高频节点前移"
+    ] }
+  ]
+}

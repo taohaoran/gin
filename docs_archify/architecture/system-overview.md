@@ -1,51 +1,51 @@
-# gin 系统总览
+# gin 系统总览（system-overview）
 
-## 一、功能总览
+> 源码基准：`github.com/gin-gonic/gin` master @ `5c6a15f`（Go 1.26.0，MIT，98 个 Go 文件 / 约 2.4 万行含测试）。
+> 分析方式：archify 按"系统级 → 域 → 叶子"两级拆分——6 个域（routing / handling / middleware / binding / render / support）、15 个叶子，每个叶子为设计文档级分析单元。
 
-gin 是一个 Go 语言编写的 Web 框架，在标准库 `net/http` 之上提供：
+## 1. 功能总览
 
-- **路由**：基于基数树（radix tree）的高性能路由，支持静态段、参数段（`:name`）、通配段（`*filepath`）、路由分组与大小写不敏感查找。
-- **中间件**：洋葱模型的 handler 链，`Context.Next()` 控制流推进，内置 Logger / Recovery / BasicAuth 等。
-- **上下文**：每请求一个 `Context`，承担路径参数、请求取值、请求绑定、响应渲染、错误收集与 `context.Context` 适配。
-- **请求绑定**：按 Content-Type 分派到 JSON/XML/YAML/TOML/表单/查询串/URI/Header 绑定器，并接入 `go-playground/validator` 校验。
-- **响应渲染**：统一 `Render` 接口，覆盖 JSON（含 Indented/Secure/JSONP/Ascii/Pure 变体）、XML/YAML/TOML/Protobuf/HTML/Text/Data/PDF/Redirect/Reader。
-- **JSON 后端抽象**：`codec/json` 通过 build tag 在 encoding/json、jsoniter、字节 sonic 之间编译期切换。
-- **工程设施**：运行模式（Debug/Release/Test）、错误模型、包级单例 `ginS`、`internal/bytesconv` 零拷贝工具。
+gin 是一个高性能 HTTP Web 框架（Martini-like API，httprouter 血缘，零分配路由），核心能力：
 
-## 二、解决的问题
-
-1. **路由匹配性能与冲突处理**：用基数树把 URL 模式压缩成单棵前缀树，注册时校验静态/参数/通配段冲突，请求时 O(URL) 匹配。
-2. **每请求对象复用**：`Context` 用 `sync.Pool` 池化复用，`reset()` 清理状态，避免高并发下的堆分配。
-3. **请求/响应编码统一**：绑定与渲染两套接口把"读请求体 → 结构体"和"结构体 → 响应体 + Content-Type"标准化，业务只面对 `Context`。
-4. **中间件可组合**：`RouterGroup.Use` 把中间件与业务 handler 合并成有序链，支持分组与嵌套。
-5. **JSON 序列化可替换**：用 build tag 把 JSON 后端编译期钉死，运行时零分支，兼顾默认兼容性与高性能后端。
-
-## 三、系统边界
-
-| 方向 | 边界对象 | 说明 |
+| 能力 | 实现要点 | 归属 |
 |---|---|---|
-| 上 | `net/http`（Go 标准库） | gin 实现 `http.Handler` 接口，由标准库 Server 驱动；不在本仓库源码内 |
-| 下 | 业务 Handler（用户代码） | 路由命中后最终调用的用户 handler；不在本仓库源码内 |
-| 内 | 路由树 + Context + binding/render + 中间件 | 本仓库全部核心源码 |
-| 侧 | validator / JSON 后端 / 模板引擎 | 第三方依赖，均不在本仓库源码内 |
+| 零分配基数树路由 | 前缀共享 radix tree，`:param`/`*wildcard` 通配匹配、tsr 尾斜杠重定向 | routing |
+| 路由分组与注册 | RouterGroup 前缀组、中间件继承、Method 快捷方法、QUERY 方法（RFC 10008） | routing |
+| 请求生命周期 | Engine.ServeHTTP → handleHTTPRequest → 路由匹配 → Context 处理链 → 响应 | handling |
+| 中间件链式执行 | Use 注册 + combineHandlers 组合 + c.Next/c.Abort 游标协议 | middleware |
+| 多格式绑定 | JSON/XML/YAML/TOML/MsgPack/Protobuf/BSON/Plain/Form/Query/Header + 结构校验 | binding |
+| 多格式渲染 | 同格式集 + Text/HTML/Redirect/Data/Reader/PDF | render |
+| 集中错误管理 | Error/ErrorType 聚合、ByType 过滤、JSON 序列化 | support |
+| 可插拔 JSON codec | codec/json 接口 + 标准库/go-json/jsoniter/sonic 四实现 | support |
+| 内置中间件 | Recovery 防崩溃、Logger、BasicAuth、静态文件服务 | middleware |
+| 多运行方式 | Run/RunTLS/RunFd/RunListener/RunUnix/RunQUIC | handling |
 
-**不做什么**：
-- 不实现 HTTP 服务器本身（依赖 `net/http`，仅提供 `Run` 系列便捷启动）。
-- 不做服务发现、配置中心、RPC 框架、ORM、数据库连接池。
-- 不自带 WebSocket 服务端实现（仅透传 `Hijacker` 接口）。
-- 不做请求级重试/熔断/限流（由中间件生态或用户自行实现）。
+## 2. 解决的问题
 
-## 四、核心视图
+- **路由性能**：基数树将路径匹配复杂度压缩到路径长度量级，注册期一次性构建、运行期零分配只读匹配（`tree.go:418 getValue`）。
+- **中间件组合复杂性**：把"全局中间件 → 组中间件 → 路由处理器"的合并固化到注册期（`routergroup.go:251 combineHandlers`），请求期仅靠 `c.Next()` 游标线性执行（`context.go:198`），链长超限即 panic 防护。
+- **绑定与渲染的格式爆炸**：以 `Binding`/`Render` 两个接口统一 10+ 种格式，`Context` 提供 `Bind`/`ShouldBind` 与 `JSON`/`HTML`/`Stream` 等快捷入口（`context.go:780`、`context.go:1260`），业务代码与具体编解码库解耦。
+- **错误与崩溃韧性**：集中错误聚合（`errors.go:98 ByType`）+ Recovery 中间件把 panic 转 500（`recovery.go:53`），避免单请求崩溃拖垮进程。
+- **性能敏感路径**：`internal/bytesconv` 零拷贝字符串转换、`sync.Pool` 上下文池复用（`gin.go:662 ServeHTTP`）、可插拔高性能 JSON codec 各取所需。
 
-- [系统架构图](system-architecture.html)：分层与依赖关系。
-- [请求生命周期时序图](system-request-sequence.html)：从 `ServeHTTP` 到响应写回的主路径。
-- [请求处理数据流](system-dataflow.html)：接入 → 路由 → 中间件链 → 业务 handler → 渲染写回。
+## 3. 系统边界
 
-## 五、Go 语言适配口径
+| 边界 | 内容 | 说明 |
+|---|---|---|
+| 上边界 | HTTP 客户端 | 请求方，不在本仓库源码内 |
+| 下边界 | net/http（Server/ResponseWriter）、go-playground/validator、sonic/jsoniter/go-json、quic-go、文件系统 | 标准库与第三方依赖，不在本仓库源码内 |
+| 内边界 | 顶层单包 `gin`（engine/context/tree/routergroup/...）+ binding/ + render/ + internal/ + codec/json | 本仓库全部源码，按 6 域归组 |
+| 侧边界 | `ginS/` 示例服务器（gins.go + README） | 示例而非库代码，仅作运行方式参考 |
 
-主语言为 Go 库形态（无 `cmd/` 多二进制、无 main 包）。分析覆盖：
+**不做什么**：不内置模板引擎（HTML 渲染需用户配置 `LoadHTMLGlob` 等）；不提供数据库/ORM 访问；不管理进程生命周期与日志文件（Logger 中间件仅向 writer 输出）；不约束业务分层（路由处理器即普通函数签名 `func(*Context)`）。
 
-- **并发模型**：`Context` 的 `sync.Pool` 复用与 `reset()`、`defaultValidator` 的 `sync.Once` 懒初始化、`atomic` 状态切换、`context.Context` 通过 `c.Request.WithContext` 传播。
-- **internal 边界**：`internal/bytesconv`、`internal/fs` 仅 gin 包内可导入，对外不可见。
-- **单二进制库形态**：通过 `Engine` 单实例 + 包级 `ginS` 全局转发提供两种使用范式。
-- **不做**：K8s 控制器模式 / informer / reconciler 分析（本项目非 K8s 平台类）。
+## 4. 图表说明
+
+| 图 | 表达的核心语义 | 质量档位 | 说明 |
+|---|---|---|---|
+| [system-architecture.html](system-architecture.html) | 组件分层拓扑：外部依赖（client/net/http）与 gin 核心 11 组件的静态关系 | standard | 组件多、跨层连接复杂，系统级允许 standard；render 成功 |
+| [system-sequence.html](system-sequence.html) | 请求生命周期：client→net/http→Engine→路由树→中间件链→业务处理器→响应写入→返回 | showcase | 7 参与者、10 条消息，一次通过 |
+| [system-dataflow.html](system-dataflow.html) | 请求数据流：入口→路由→参数解析→业务处理→响应输出，含绑定失败/panic→错误聚合→JSON 错误响应分支 | standard | 多分支跨列通道，系统级允许 standard；render 成功 |
+
+> 质量档位口径：叶子级图目标 showcase（合格线），系统级图允许 standard（方案 5）。standard 仅表示布局约束较 showcase 宽松，内容与交互性不受影响（HTML 均为 700KB+ 自包含交互式）。
+> 图 JSON IR 源文件见 `json/` 目录（与 HTML 同名）。

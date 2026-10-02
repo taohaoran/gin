@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "中间件链洋葱模型",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1200, 720],
+    "output": "handling/context/context-sequence.html"
+  },
+  "participants": [
+    { "id": "engine", "type": "backend", "label": "Engine" },
+    { "id": "mw1", "type": "backend", "label": "中间件 A" },
+    { "id": "mw2", "type": "backend", "label": "中间件 B" },
+    { "id": "h", "type": "backend", "label": "主 handler" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "engine", "to": "mw1", "y": 160, "label": "c.Next() 启动链", "variant": "emphasis" },
+    { "id": "m2", "from": "mw1", "to": "mw2", "y": 230, "label": "前置后 c.Next()", "variant": "emphasis" },
+    { "id": "m3", "from": "mw2", "to": "h", "y": 300, "label": "前置后 c.Next()", "variant": "emphasis" },
+    { "id": "m4", "from": "h", "to": "mw2", "y": 370, "label": "写业务响应后返回", "variant": "return" },
+    { "id": "m5", "from": "mw2", "to": "mw1", "y": 440, "label": "后置后返回", "variant": "return" },
+    { "id": "m6", "from": "mw1", "to": "engine", "y": 510, "label": "后置后链结束", "variant": "return" },
+    { "id": "a1", "from": "mw2", "to": "mw1", "y": 580, "label": "c.Abort() 阻断后续", "variant": "dashed" }
+  ]
+}

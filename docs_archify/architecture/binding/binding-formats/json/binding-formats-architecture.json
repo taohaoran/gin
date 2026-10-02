@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "binding-formats 架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "binding/binding-formats/binding-formats-architecture.html"
+  },
+  "components": [
+    { "id": "ctx", "type": "backend", "label": "Context 调用方", "pos": [40, 290], "size": [140, 60] },
+    { "id": "disp", "type": "backend", "label": "Default 按 MIME 分发", "pos": [310, 290], "size": [160, 60], "tag": "binding.go:95" },
+    { "id": "json", "type": "backend", "label": "JSON", "pos": [490, 90], "size": [120, 50], "tag": "BindingBody" },
+    { "id": "xml", "type": "backend", "label": "XML", "pos": [640, 90], "size": [120, 50] },
+    { "id": "yaml", "type": "backend", "label": "YAML", "pos": [490, 160], "size": [120, 50] },
+    { "id": "toml", "type": "backend", "label": "TOML", "pos": [640, 160], "size": [120, 50] },
+    { "id": "mp", "type": "backend", "label": "MsgPack", "pos": [490, 230], "size": [120, 50] },
+    { "id": "pb", "type": "backend", "label": "Protobuf", "pos": [640, 230], "size": [120, 50] },
+    { "id": "bson", "type": "backend", "label": "BSON", "pos": [490, 300], "size": [120, 50] },
+    { "id": "plain", "type": "backend", "label": "Plain", "pos": [640, 300], "size": [120, 50] },
+    { "id": "form", "type": "backend", "label": "Form", "pos": [490, 400], "size": [120, 50], "tag": "Binding" },
+    { "id": "fp", "type": "backend", "label": "FormPost", "pos": [640, 400], "size": [120, 50] },
+    { "id": "fmp", "type": "backend", "label": "Multipart", "pos": [490, 470], "size": [120, 50] },
+    { "id": "query", "type": "backend", "label": "Query", "pos": [640, 470], "size": [120, 50] },
+    { "id": "hdr", "type": "backend", "label": "Header", "pos": [490, 540], "size": [120, 50] },
+    { "id": "uri", "type": "backend", "label": "URI", "pos": [640, 540], "size": [120, 50], "tag": "BindingUri" },
+    { "id": "ext", "type": "external", "label": "第三方编解码库", "pos": [830, 290], "size": [160, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "请求体解码类（BindingBody）", "wraps": ["json", "xml", "yaml", "toml", "mp", "pb", "bson", "plain"] },
+    { "kind": "region", "label": "表单/参数类（Binding/BindingUri）", "wraps": ["form", "fp", "fmp", "query", "hdr", "uri"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "ctx", "to": "disp", "label": "方法/类型", "variant": "emphasis" },
+    { "id": "c2", "from": "disp", "to": "json", "label": "application/json" },
+    { "id": "c3", "from": "disp", "to": "form", "label": "GET / 默认" },
+    { "id": "c4", "from": "json", "to": "ext", "label": "解码器" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "两类实现", "items": ["体解码：读 req.Body", "表单类：复用反射映射", "解码后统一 validate"] }
+  ]
+}

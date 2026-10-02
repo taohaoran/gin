@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "binding 域输入渠道数据流",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1100, 520],
+    "output": "binding/binding-dataflow.html"
+  },
+  "stages": [
+    { "label": "输入渠道" },
+    { "label": "解码/映射" },
+    { "label": "校验" },
+    { "label": "目标" }
+  ],
+  "nodes": [
+    { "id": "body", "type": "frontend", "label": "请求体", "stage": 0, "row": 0 },
+    { "id": "query", "type": "frontend", "label": "查询参数", "stage": 0, "row": 1 },
+    { "id": "rph", "type": "frontend", "label": "路由/请求头", "stage": 0, "row": 2 },
+    { "id": "dec", "type": "backend", "label": "解码+反射映射", "stage": 1, "row": 1 },
+    { "id": "val", "type": "backend", "label": "binding tag 校验", "stage": 2, "row": 1 },
+    { "id": "dst", "type": "database", "label": "用户 struct", "stage": 3, "row": 1 }
+  ],
+  "flows": [
+    { "from": "body", "to": "dec", "label": "JSON 等", "route": "straight" },
+    { "from": "query", "to": "dec", "label": "map 参数", "route": "straight" },
+    { "from": "rph", "to": "dec", "label": "uri/header", "route": "straight" },
+    { "from": "dec", "to": "val", "label": "已填充", "variant": "emphasis", "route": "straight" },
+    { "from": "val", "to": "dst", "label": "通过", "variant": "emphasis", "route": "straight" }
+  ]
+}

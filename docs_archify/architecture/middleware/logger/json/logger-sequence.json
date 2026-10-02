@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "请求计时日志产出时序图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [
+      1100,
+      730
+    ],
+    "output": "middleware/logger/logger-sequence.html"
+  },
+  "participants": [
+    {
+      "id": "mw",
+      "type": "backend",
+      "label": "Logger 闭包"
+    },
+    {
+      "id": "next",
+      "type": "backend",
+      "label": "下游中间件"
+    },
+    {
+      "id": "biz",
+      "type": "backend",
+      "label": "业务处理器"
+    },
+    {
+      "id": "w",
+      "type": "external",
+      "label": "stdout"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m2",
+      "from": "mw",
+      "to": "next",
+      "y": 160,
+      "label": "c.Next()",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m3",
+      "from": "next",
+      "to": "biz",
+      "y": 250,
+      "label": "处理请求"
+    },
+    {
+      "id": "m4",
+      "from": "biz",
+      "to": "next",
+      "y": 340,
+      "label": "响应就绪",
+      "variant": "return"
+    },
+    {
+      "id": "m5",
+      "from": "next",
+      "to": "mw",
+      "y": 430,
+      "label": "链返回",
+      "variant": "return"
+    },
+    {
+      "id": "m7",
+      "from": "mw",
+      "to": "w",
+      "y": 520,
+      "label": "formatter(param) 写日志",
+      "variant": "emphasis"
+    }
+  ]
+}

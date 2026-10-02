@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "工具库与 JSON codec 多后端架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "support/internal-utils/internal-utils-architecture.html"
+  },
+  "components": [
+    { "id": "api", "type": "backend", "label": "json.Core 接口 + API", "pos": [60, 200], "size": [170, 60], "tag": "可插拔" },
+    { "id": "std", "type": "external", "label": "encoding/json", "pos": [300, 60], "size": [150, 55] },
+    { "id": "gojson", "type": "external", "label": "goccy/go-json", "pos": [300, 130], "size": [150, 55] },
+    { "id": "jiter", "type": "external", "label": "json-iterator", "pos": [300, 200], "size": [150, 55] },
+    { "id": "sonic", "type": "external", "label": "bytedance/sonic", "pos": [300, 270], "size": [150, 55] },
+    { "id": "bytes", "type": "backend", "label": "internal/bytesconv", "pos": [540, 120], "size": [160, 55] },
+    { "id": "util", "type": "backend", "label": "utils.go 辅助", "pos": [540, 200], "size": [160, 55] },
+    { "id": "consumer", "type": "backend", "label": "errors/render 消费方", "pos": [760, 200], "size": [160, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "codec/json + internal", "wraps": ["api", "bytes", "util"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "std", "to": "api", "label": "build tag 选 1", "variant": "dashed" },
+    { "id": "c2", "from": "gojson", "to": "api", "label": "", "variant": "dashed" },
+    { "id": "c3", "from": "jiter", "to": "api", "label": "", "variant": "dashed" },
+    { "id": "c4", "from": "sonic", "to": "api", "label": "", "variant": "dashed" },
+    { "id": "c5", "from": "api", "to": "consumer", "label": "Marshal/Unmarshal", "variant": "emphasis" },
+    { "id": "c6", "from": "bytes", "to": "consumer", "label": "零拷贝", "variant": "default" },
+    { "id": "c7", "from": "util", "to": "consumer", "label": "路径/包装", "variant": "default" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": [
+      "编译期 build tag 选后端",
+      "运行时 API 全局单例",
+      "接口在消费方侧定义"
+    ] }
+  ]
+}

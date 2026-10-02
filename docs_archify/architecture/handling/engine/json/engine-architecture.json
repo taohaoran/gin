@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "引擎核心架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "handling/engine/engine-architecture.html"
+  },
+  "components": [
+    { "id": "client", "type": "external", "label": "HTTP 客户端", "pos": [40, 260], "size": [130, 60] },
+    { "id": "httpserver", "type": "external", "label": "net/http.Server", "pos": [230, 260], "size": [150, 60] },
+    { "id": "engine", "type": "backend", "label": "Engine 实例", "pos": [450, 250], "size": [140, 80], "tag": "请求分发" },
+    { "id": "pool", "type": "backend", "label": "Context 对象池", "pos": [660, 120], "size": [140, 60] },
+    { "id": "trees", "type": "backend", "label": "methodTrees 路由树", "pos": [660, 230], "size": [150, 60] },
+    { "id": "trusted", "type": "security", "label": "trustedCIDRs 白名单", "pos": [660, 340], "size": [150, 60] },
+    { "id": "html", "type": "backend", "label": "HTMLRender 模板", "pos": [660, 450], "size": [140, 60] },
+    { "id": "h2c", "type": "external", "label": "h2c / http2", "pos": [230, 120], "size": [140, 60] },
+    { "id": "quic", "type": "external", "label": "quic-go http3", "pos": [230, 420], "size": [150, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "gin Engine 内部", "wraps": ["engine", "pool", "trees", "trusted", "html"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "client", "to": "httpserver", "label": "TCP 连接", "variant": "default" },
+    { "id": "c2", "from": "httpserver", "to": "engine", "label": "ServeHTTP", "variant": "emphasis" },
+    { "id": "c3", "from": "engine", "to": "pool", "label": "Get/Put Context", "variant": "default" },
+    { "id": "c4", "from": "engine", "to": "trees", "label": "getValue 查路由", "variant": "emphasis" },
+    { "id": "c5", "from": "engine", "to": "trusted", "label": "校验代理 IP", "variant": "default" },
+    { "id": "c6", "from": "engine", "to": "html", "label": "加载模板", "variant": "default" },
+    { "id": "c7", "from": "h2c", "to": "httpserver", "label": "H2C 包装", "variant": "dashed" },
+    { "id": "c8", "from": "quic", "to": "engine", "label": "RunQUIC", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "主路径", "items": [
+      "请求经 http.Server 进入 Engine.ServeHTTP",
+      "查路由树并执行 handler 链",
+      "Context 由 sync.Pool 复用"
+    ]}
+  ]
+}

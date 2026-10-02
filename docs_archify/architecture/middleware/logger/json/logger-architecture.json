@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "日志中间件组件与配置图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "middleware/logger/logger-architecture.html"
+  },
+  "components": [
+    { "id": "mw", "type": "backend", "label": "LoggerWithConfig 闭包", "pos": [60, 240], "size": [170, 60], "tag": "链首中间件" },
+    { "id": "next", "type": "backend", "label": "c.Next 下游链", "pos": [300, 240], "size": [150, 60] },
+    { "id": "param", "type": "backend", "label": "LogFormatterParams", "pos": [300, 100], "size": [160, 60] },
+    { "id": "fmt", "type": "backend", "label": "defaultLogFormatter", "pos": [520, 100], "size": [160, 60] },
+    { "id": "color", "type": "backend", "label": "ANSI 配色方法", "pos": [520, 240], "size": [160, 60] },
+    { "id": "out", "type": "external", "label": "io.Writer(stdout)", "pos": [740, 170], "size": [160, 60] },
+    { "id": "skip", "type": "backend", "label": "SkipPaths/Skipper", "pos": [60, 380], "size": [170, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "logger.go", "wraps": ["mw", "next", "param", "fmt", "color", "skip"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "mw", "to": "next", "label": "c.Next()", "variant": "emphasis" },
+    { "id": "c2", "from": "next", "to": "param", "label": "回填状态/耗时", "variant": "default" },
+    { "id": "c3", "from": "param", "to": "fmt", "label": "格式化", "variant": "default" },
+    { "id": "c4", "from": "color", "to": "fmt", "label": "颜色", "variant": "dashed" },
+    { "id": "c5", "from": "fmt", "to": "out", "label": "Fprint", "variant": "emphasis" },
+    { "id": "c6", "from": "skip", "to": "mw", "label": "跳过判定", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": [
+      "c.Next 前计时，返回后写日志",
+      "私有错误进日志，公开错误进响应",
+      "非终端自动关闭 ANSI 颜色"
+    ] }
+  ]
+}

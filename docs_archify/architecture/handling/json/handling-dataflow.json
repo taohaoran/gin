@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "请求处理数据流",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1200, 620],
+    "output": "handling/handling-dataflow.html"
+  },
+  "stages": [
+    { "label": "请求输入" },
+    { "label": "路由匹配" },
+    { "label": "绑定处理" },
+    { "label": "渲染输出" }
+  ],
+  "nodes": [
+    { "id": "req", "type": "frontend", "label": "http.Request", "stage": 0, "row": 1 },
+    { "id": "tree", "type": "backend", "label": "路由树", "stage": 1, "row": 1 },
+    { "id": "bind", "type": "external", "label": "binding 绑定", "stage": 2, "row": 1 },
+    { "id": "keys", "type": "database", "label": "业务对象", "stage": 2, "row": 2 },
+    { "id": "render", "type": "external", "label": "render 渲染", "stage": 3, "row": 1 },
+    { "id": "writer", "type": "external", "label": "ResponseWriter", "stage": 3, "row": 2 }
+  ],
+  "flows": [
+    { "from": "req", "to": "tree", "label": "URL 查路由", "variant": "emphasis", "route": "straight" },
+    { "from": "req", "to": "bind", "label": "body/query", "route": "bottom-channel" },
+    { "from": "tree", "to": "bind", "label": "路径参数", "route": "top-channel" },
+    { "from": "bind", "to": "keys", "label": "反序列化", "labelDy": 30, "route": "straight" },
+    { "from": "keys", "to": "render", "label": "业务数据", "variant": "emphasis", "route": "straight" },
+    { "from": "render", "to": "writer", "label": "写出", "labelDy": 30, "variant": "emphasis", "route": "straight" }
+  ]
+}

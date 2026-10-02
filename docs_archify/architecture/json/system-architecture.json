@@ -1,34 +1,42 @@
 {
   "schema_version": 1,
   "diagram_type": "architecture",
-  "meta": { "title": "gin 系统架构总览", "quality_profile": "showcase", "locale": "zh-CN", "viewBox": [1280, 760] },
+  "meta": { "title": "gin 系统架构图", "output": "system-architecture.html", "quality_profile": "standard", "locale": "zh-CN", "views": [] },
   "components": [
-    { "id": "stdlib", "type": "external", "label": "net/http 标准库", "pos": [60, 80], "size": [180, 64], "tag": "Go 标准库" },
-    { "id": "engine", "type": "backend", "label": "gin.Engine", "pos": [60, 300], "size": [180, 64], "tag": "核心引擎" },
-    { "id": "group", "type": "backend", "label": "RouterGroup", "pos": [340, 180], "size": [180, 64], "tag": "路由分组" },
-    { "id": "tree", "type": "backend", "label": "radix 路由树", "pos": [340, 420], "size": [180, 64], "tag": "路由匹配" },
-    { "id": "ctx", "type": "backend", "label": "Context 对象", "pos": [620, 300], "size": [180, 64], "tag": "请求上下文" },
-    { "id": "mw", "type": "backend", "label": "内置中间件", "pos": [620, 120], "size": [180, 64], "tag": "Logger/Recovery/Auth" },
-    { "id": "binding", "type": "backend", "label": "请求绑定", "pos": [900, 180], "size": [180, 64], "tag": "binding 包" },
-    { "id": "render", "type": "backend", "label": "响应渲染", "pos": [900, 420], "size": [180, 64], "tag": "render 包" },
-    { "id": "user", "type": "external", "label": "业务 Handler", "pos": [900, 600], "size": [180, 64], "tag": "用户代码" },
-    { "id": "third", "type": "external", "label": "validator / JSON 后端", "pos": [340, 600], "size": [200, 64], "tag": "不在本仓库源码内" }
+    { "id": "client",  "type": "external", "label": "HTTP 客户端", "pos": [60, 100], "size": [140, 60] },
+    { "id": "nethttp", "type": "external", "label": "net/http 标准库", "pos": [60, 380], "size": [140, 60], "sublabel": "不在本仓库源码内" },
+    { "id": "engine",  "type": "backend",  "label": "Engine 核心", "pos": [330, 100], "size": [150, 60], "tag": "入口与分发" },
+    { "id": "tree",    "type": "backend",  "label": "路由基数树", "pos": [330, 270], "size": [150, 60], "tag": "零分配匹配" },
+    { "id": "rgroup",  "type": "backend",  "label": "路由组", "pos": [330, 440], "size": [150, 60], "tag": "注册与分组" },
+    { "id": "mwchain", "type": "backend",  "label": "中间件链", "pos": [330, 610], "size": [150, 60], "tag": "Next/Abort" },
+    { "id": "ctx",     "type": "backend",  "label": "Context", "pos": [610, 100], "size": [150, 60], "tag": "请求上下文" },
+    { "id": "binding", "type": "backend",  "label": "绑定解析", "pos": [610, 270], "size": [150, 60], "tag": "多格式" },
+    { "id": "render",  "type": "backend",  "label": "渲染器", "pos": [610, 440], "size": [150, 60], "tag": "多格式输出" },
+    { "id": "rw",      "type": "backend",  "label": "响应写入", "pos": [610, 610], "size": [150, 60], "tag": "状态跟踪" },
+    { "id": "errors",  "type": "backend",  "label": "错误聚合", "pos": [890, 100], "size": [150, 60], "tag": "集中管理" },
+    { "id": "jsoncodec","type": "backend", "label": "JSON codec", "pos": [890, 270], "size": [150, 60], "tag": "可插拔" },
+    { "id": "internals","type": "backend", "label": "内部工具", "pos": [890, 440], "size": [150, 60], "tag": "bytesconv/fs" }
   ],
   "boundaries": [
-    { "kind": "region", "label": "gin 框架内部", "wraps": ["engine", "group", "tree", "ctx", "mw", "binding", "render"] }
+    { "kind": "region", "label": "gin 框架核心", "wraps": ["engine", "tree", "rgroup", "mwchain", "ctx", "binding", "render", "rw", "errors", "jsoncodec", "internals"] }
   ],
   "connections": [
-    { "id": "c1", "from": "stdlib", "to": "engine", "variant": "emphasis" },
-    { "id": "c2", "from": "engine", "to": "group", "label": "持有并注册路由" },
-    { "id": "c3", "from": "engine", "to": "tree", "label": "请求时查表" },
-    { "id": "c4", "from": "engine", "to": "ctx", "label": "池化分发 Context" },
-    { "id": "c5", "from": "group", "to": "mw", "label": "Use 合并中间件" },
-    { "id": "c6", "from": "ctx", "to": "binding", "label": "ShouldBind 族" },
-    { "id": "c7", "from": "ctx", "to": "render", "label": "Render 族" },
-    { "id": "c9", "from": "binding", "to": "third", "label": "校验/序列化", "variant": "dashed" },
-    { "id": "c10", "from": "render", "to": "third", "label": "序列化后端", "variant": "dashed" }
+    { "id": "c1",  "from": "client",  "to": "nethttp", "label": "HTTP 请求", "variant": "emphasis", "labelAt": [121, 174] },
+    { "id": "c2",  "from": "nethttp", "to": "engine",  "label": "ServeHTTP 分发", "variant": "emphasis" },
+    { "id": "c3",  "from": "engine",  "to": "tree",    "label": "handleHTTPRequest 匹配", "variant": "emphasis" },
+    { "id": "c4",  "from": "engine",  "to": "ctx",     "label": "构建 Context", "variant": "emphasis" },
+    { "id": "c5",  "from": "ctx",     "to": "binding", "label": "解析参数与请求体", "variant": "emphasis" },
+    { "id": "c6",  "from": "ctx",     "to": "render",  "label": "渲染响应" },
+    { "id": "c7",  "from": "render",  "to": "rw",      "label": "写入响应", "labelAt": [685, 432] },
+    { "id": "c8",  "from": "engine",  "to": "rgroup",  "label": "路由注册", "variant": "dashed" },
+    { "id": "c9",  "from": "rgroup",  "to": "tree",    "label": "addRoute 建树", "variant": "dashed" },
+    { "id": "c10", "from": "engine",  "to": "mwchain", "label": "Use 注册", "variant": "dashed" },
+    { "id": "c11", "from": "ctx",     "to": "mwchain", "label": "Next 链执行", "variant": "dashed" },
+    { "id": "c12", "from": "ctx",     "to": "errors",  "label": "错误聚合", "variant": "dashed" },
+    { "id": "c13", "from": "render",  "to": "jsoncodec","label": "JSON 编解码", "variant": "dashed", "labelAt": [685, 514] },
+    { "id": "c14", "from": "binding", "to": "jsoncodec","label": "JSON 解析", "variant": "dashed" }
   ],
   "cards": [
-    { "dot": "emerald", "title": "系统边界", "items": ["上接 net/http，下交业务 handler", "内聚路由树 + Context + binding/render", "JSON 后端与 validator 为外部依赖"] }
+    { "dot": "emerald", "title": "核心特性", "items": ["零分配基数树路由", "中间件链式执行", "可插拔 JSON codec"] }
   ]
 }

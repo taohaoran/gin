@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "错误聚合组件与类型位图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "support/errors/errors-architecture.html"
+  },
+  "components": [
+    { "id": "ctx", "type": "backend", "label": "Context.Error 收集", "pos": [40, 220], "size": [160, 60] },
+    { "id": "err", "type": "backend", "label": "Error{Err,Type,Meta}", "pos": [260, 220], "size": [170, 60] },
+    { "id": "bits", "type": "backend", "label": "ErrorType 位掩码", "pos": [260, 80], "size": [170, 60], "tag": "Bind/Render/Public/Private" },
+    { "id": "list", "type": "backend", "label": "errorMsgs 切片", "pos": [500, 220], "size": [150, 60] },
+    { "id": "filter", "type": "backend", "label": "ByType 过滤", "pos": [500, 80], "size": [150, 60] },
+    { "id": "json", "type": "external", "label": "codec/json.API", "pos": [720, 220], "size": [150, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "errors.go", "wraps": ["ctx", "err", "bits", "list", "filter"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "ctx", "to": "err", "label": "包装", "variant": "emphasis" },
+    { "id": "c2", "from": "bits", "to": "err", "label": "打类型标签", "variant": "default" },
+    { "id": "c3", "from": "err", "to": "list", "label": "追加", "variant": "emphasis" },
+    { "id": "c4", "from": "filter", "to": "list", "label": "位与筛选", "variant": "dashed" },
+    { "id": "c5", "from": "list", "to": "json", "label": "MarshalJSON", "variant": "default" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": [
+      "uint64 位掩码可多标签",
+      "默认私有错误",
+      "序列化委托可插拔 codec"
+    ] }
+  ]
+}

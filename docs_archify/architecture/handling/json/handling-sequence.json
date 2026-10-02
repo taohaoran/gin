@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "请求生命周期时序",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1200, 900],
+    "output": "handling/handling-sequence.html"
+  },
+  "participants": [
+    { "id": "client", "type": "external", "label": "客户端" },
+    { "id": "httpserver", "type": "external", "label": "http.Server" },
+    { "id": "engine", "type": "backend", "label": "Engine" },
+    { "id": "pool", "type": "backend", "label": "对象池" },
+    { "id": "ctx", "type": "backend", "label": "Context" },
+    { "id": "handler", "type": "backend", "label": "业务 handler" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "client", "to": "httpserver", "y": 160, "label": "HTTP 请求", "variant": "emphasis" },
+    { "id": "m2", "from": "httpserver", "to": "engine", "y": 225, "label": "ServeHTTP", "variant": "emphasis" },
+    { "id": "m3", "from": "engine", "to": "pool", "y": 290, "label": "Get Context" },
+    { "id": "m4", "from": "pool", "to": "engine", "y": 350, "label": "复用 Context", "variant": "return" },
+    { "id": "m5", "from": "engine", "to": "ctx", "y": 415, "label": "查路由 + Next", "variant": "emphasis" },
+    { "id": "m6", "from": "ctx", "to": "handler", "y": 480, "label": "中间件链", "variant": "emphasis" },
+    { "id": "m7", "from": "handler", "to": "ctx", "y": 545, "label": "业务响应", "variant": "return" },
+    { "id": "m8", "from": "ctx", "to": "engine", "y": 610, "label": "链结束落头", "variant": "return" },
+    { "id": "m9", "from": "engine", "to": "pool", "y": 675, "label": "Put 回收" },
+    { "id": "m10", "from": "engine", "to": "httpserver", "y": 735, "label": "响应就绪", "variant": "return" },
+    { "id": "m11", "from": "httpserver", "to": "client", "y": 795, "label": "HTTP 响应", "variant": "return" }
+  ]
+}

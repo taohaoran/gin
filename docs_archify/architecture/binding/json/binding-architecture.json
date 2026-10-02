@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "binding 域架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "binding/binding-architecture.html"
+  },
+  "components": [
+    { "id": "ctx", "type": "backend", "label": "Context 桥接层", "pos": [40, 290], "size": [150, 60], "tag": "ShouldBind 系列" },
+    { "id": "core", "type": "backend", "label": "binding-core", "pos": [320, 140], "size": [160, 60], "tag": "接口/反射/校验" },
+    { "id": "fmts", "type": "backend", "label": "binding-formats", "pos": [320, 330], "size": [160, 60], "tag": "14 种格式实现" },
+    { "id": "extval", "type": "external", "label": "validator/v10", "pos": [600, 140], "size": [150, 60] },
+    { "id": "extlib", "type": "external", "label": "编解码/JSON 库", "pos": [600, 330], "size": [150, 60] },
+    { "id": "render", "type": "backend", "label": "render 域", "pos": [850, 290], "size": [140, 60], "tag": "错误响应" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "binding 域", "wraps": ["core", "fmts"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "ctx", "to": "core", "label": "Bind 协议", "variant": "emphasis" },
+    { "id": "c2", "from": "ctx", "to": "fmts", "label": "按 MIME 选格式" },
+    { "id": "c3", "from": "fmts", "to": "core", "label": "反射/校验" },
+    { "id": "c4", "from": "core", "to": "extval", "label": "Struct 校验" },
+    { "id": "c5", "from": "fmts", "to": "extlib", "label": "解码" },
+    { "id": "c6", "from": "ctx", "to": "render", "label": "绑定失败" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "域定位", "items": ["请求→struct 反序列化", "统一 tag 校验", "错误交 render"] }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "panic 恢复链路时序图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [
+      1100,
+      710
+    ],
+    "output": "middleware/recovery-auth/recovery-auth-sequence.html"
+  },
+  "participants": [
+    {
+      "id": "rec",
+      "type": "backend",
+      "label": "Recovery"
+    },
+    {
+      "id": "biz",
+      "type": "backend",
+      "label": "业务处理器"
+    },
+    {
+      "id": "log",
+      "type": "external",
+      "label": "错误 writer"
+    },
+    {
+      "id": "c",
+      "type": "backend",
+      "label": "Context"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "rec",
+      "to": "biz",
+      "y": 160,
+      "label": "c.Next()",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "biz",
+      "to": "rec",
+      "y": 250,
+      "label": "panic 抛出",
+      "variant": "return"
+    },
+    {
+      "id": "m4",
+      "from": "rec",
+      "to": "log",
+      "y": 340,
+      "label": "打印堆栈/请求转储"
+    },
+    {
+      "id": "m5",
+      "from": "rec",
+      "to": "c",
+      "y": 430,
+      "label": "c.Error + AbortWithStatus(500)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m6",
+      "from": "c",
+      "to": "rec",
+      "y": 520,
+      "label": "500 响应",
+      "variant": "return"
+    }
+  ]
+}

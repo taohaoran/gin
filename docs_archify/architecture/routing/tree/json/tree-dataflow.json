@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "getValue 路由匹配数据流",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "routing/tree/tree-dataflow.html",
+    "viewBox": [1200, 620]
+  },
+  "stages": [
+    { "label": "输入路径" },
+    { "label": "前缀比对" },
+    { "label": "静态子节点" },
+    { "label": "通配匹配" },
+    { "label": "匹配结果" }
+  ],
+  "nodes": [
+    { "id": "n0", "type": "frontend", "label": "rPath 请求路径", "stage": 0, "row": 0 },
+    { "id": "n1", "type": "backend", "label": "比对 node.path 前缀", "stage": 1, "row": 0 },
+    { "id": "n2", "type": "backend", "label": "indices 静态命中", "stage": 2, "row": 0 },
+    { "id": "n3", "type": "backend", "label": "回退 skippedNode", "stage": 2, "row": 1 },
+    { "id": "n4", "type": "backend", "label": ":param 切段取值", "stage": 3, "row": 0 },
+    { "id": "n5", "type": "backend", "label": "*catchAll 取剩余", "stage": 3, "row": 1 },
+    { "id": "n6", "type": "database", "label": "nodeValue 命中", "stage": 4, "row": 0 },
+    { "id": "n7", "type": "backend", "label": "tsr 尾斜杠建议", "stage": 4, "row": 1 }
+  ],
+  "flows": [
+    { "from": "n0", "to": "n1", "label": "路径", "variant": "emphasis", "route": "straight" },
+    { "from": "n1", "to": "n2", "label": "前缀命中" },
+    { "from": "n1", "to": "n3", "label": "无静态子节点", "route": "vertical-channel" },
+    { "from": "n2", "to": "n4", "label": "下一字节" },
+    { "from": "n4", "to": "n6", "label": "参数入 Params", "variant": "emphasis" },
+    { "from": "n5", "to": "n6", "label": "通配取值" },
+    { "from": "n1", "to": "n7", "label": "尾斜杠", "route": "bottom-channel" }
+  ]
+}

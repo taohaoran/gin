@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "render 域响应输出时序",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1200, 700],
+    "column_fit": "spread",
+    "output": "render/render-sequence.html"
+  },
+  "participants": [
+    { "id": "h", "type": "backend", "label": "业务 Handler" },
+    { "id": "ctx", "type": "backend", "label": "Context" },
+    { "id": "r", "type": "backend", "label": "Render 实例" },
+    { "id": "rw", "type": "external", "label": "ResponseWriter" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "h", "to": "ctx", "y": 170, "label": "c.JSON(code,obj)", "variant": "emphasis" },
+    { "id": "m3", "from": "ctx", "to": "r", "y": 250, "label": "Render(code,render.JSON)" },
+    { "id": "m4", "from": "r", "to": "rw", "y": 320, "label": "WriteContentType 写头" },
+    { "id": "m5", "from": "r", "to": "rw", "y": 390, "label": "Marshal 后写 body", "variant": "emphasis" },
+    { "id": "m6", "from": "rw", "to": "r", "y": 460, "label": "字节数/错误", "variant": "return" },
+    { "id": "m7", "from": "r", "to": "ctx", "y": 530, "label": "error→c.Error+Abort", "variant": "return" }
+  ]
+}

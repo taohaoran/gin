@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "panic 处置状态流转",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "middleware/recovery-auth/recovery-auth-lifecycle.html"
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "正常路径"
+    },
+    {
+      "id": "err",
+      "label": "panic 处置"
+    }
+  ],
+  "states": [
+    {
+      "id": "run",
+      "type": "start",
+      "label": "下游正常执行",
+      "lane": "main",
+      "col": 0
+    },
+    {
+      "id": "caught",
+      "type": "active",
+      "label": "recover 捕获 panic",
+      "lane": "err",
+      "col": 0
+    },
+    {
+      "id": "ok",
+      "type": "success",
+      "label": "正常返回",
+      "lane": "main",
+      "col": 2
+    },
+    {
+      "id": "end",
+      "type": "failure",
+      "label": "处置:500 或断连 Abort",
+      "lane": "err",
+      "col": 2
+    }
+  ],
+  "transitions": [
+    {
+      "from": "run",
+      "to": "ok",
+      "label": "无 panic"
+    },
+    {
+      "from": "run",
+      "to": "caught",
+      "label": "下游 panic"
+    },
+    {
+      "from": "caught",
+      "to": "end",
+      "label": "分类处置",
+      "route": "bottom-channel"
+    }
+  ]
+}

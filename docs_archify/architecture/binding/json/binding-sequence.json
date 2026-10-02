@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "请求绑定端到端时序",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1280, 720],
+    "column_fit": "spread",
+    "output": "binding/binding-sequence.html"
+  },
+  "participants": [
+    { "id": "ctx", "type": "backend", "label": "Context" },
+    { "id": "disp", "type": "backend", "label": "Default 分发" },
+    { "id": "fmt", "type": "backend", "label": "格式绑定" },
+    { "id": "refl", "type": "backend", "label": "反射映射" },
+    { "id": "val", "type": "backend", "label": "校验器" },
+    { "id": "render", "type": "backend", "label": "render 域" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "ctx", "to": "disp", "y": 170, "label": "ShouldBind 选 Binding", "variant": "emphasis" },
+    { "id": "m2", "from": "disp", "to": "fmt", "y": 230, "label": "b.Bind(req,obj)" },
+    { "id": "m3", "from": "fmt", "to": "refl", "y": 290, "label": "解码/反射写 struct" },
+    { "id": "m4", "from": "fmt", "to": "val", "y": 350, "label": "validate(obj)" },
+    { "id": "m5", "from": "val", "to": "fmt", "y": 410, "label": "校验错误/nil", "variant": "return" },
+    { "id": "m6", "from": "fmt", "to": "ctx", "y": 470, "label": "返回 err", "variant": "return" },
+    { "id": "m7", "from": "ctx", "to": "render", "y": 540, "label": "失败→400 错误响应" }
+  ]
+}

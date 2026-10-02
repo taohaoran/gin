@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "ResponseWriter 包装架构",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "handling/response-writer/response-writer-architecture.html"
+  },
+  "components": [
+    { "id": "ctx", "type": "backend", "label": "Context", "pos": [40, 250], "size": [120, 60] },
+    { "id": "rw", "type": "backend", "label": "responseWriter", "pos": [250, 240], "size": [160, 80], "tag": "status/size 跟踪" },
+    { "id": "iface", "type": "frontend", "label": "ResponseWriter 接口", "pos": [250, 90], "size": [170, 55] },
+    { "id": "stdrw", "type": "external", "label": "http.ResponseWriter", "pos": [520, 240], "size": [160, 55] },
+    { "id": "hijack", "type": "external", "label": "Hijacker", "pos": [760, 90], "size": [120, 55] },
+    { "id": "flush", "type": "external", "label": "Flusher", "pos": [760, 180], "size": [120, 55] },
+    { "id": "cn", "type": "external", "label": "CloseNotifier", "pos": [760, 270], "size": [140, 55] },
+    { "id": "pusher", "type": "external", "label": "Pusher", "pos": [760, 360], "size": [120, 55] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "gin 实现", "wraps": ["rw"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "ctx", "to": "rw", "label": "内嵌 writermem", "variant": "emphasis" },
+    { "id": "c2", "from": "rw", "to": "iface", "label": "实现接口", "variant": "emphasis" },
+    { "id": "c3", "from": "rw", "to": "stdrw", "label": "包装底层", "variant": "emphasis" },
+    { "id": "c4", "from": "stdrw", "to": "hijack", "label": "类型断言", "variant": "dashed" },
+    { "id": "c5", "from": "stdrw", "to": "flush", "label": "类型断言", "variant": "dashed" },
+    { "id": "c6", "from": "stdrw", "to": "cn", "label": "类型断言", "variant": "dashed" },
+    { "id": "c7", "from": "stdrw", "to": "pusher", "label": "类型断言", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": [
+      "延迟写头: WriteHeader 只记 status",
+      "size=-1 哨兵表示未写",
+      "可选能力靠类型断言探测"
+    ]}
+  ]
+}

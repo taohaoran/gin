@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "请求数据绑定管道数据流",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1200, 520],
+    "output": "binding/binding-formats/binding-formats-dataflow.html"
+  },
+  "stages": [
+    { "label": "请求来源" },
+    { "label": "分发选择" },
+    { "label": "解码/映射" },
+    { "label": "统一校验" },
+    { "label": "目标结构" }
+  ],
+  "nodes": [
+    { "id": "body", "type": "frontend", "label": "请求体", "stage": 0, "row": 0 },
+    { "id": "param", "type": "frontend", "label": "查询/表单/URI", "stage": 0, "row": 1 },
+    { "id": "disp", "type": "backend", "label": "Default 分发", "stage": 1, "row": 0 },
+    { "id": "dec", "type": "backend", "label": "格式解码", "stage": 2, "row": 0 },
+    { "id": "ref", "type": "backend", "label": "反射映射", "stage": 2, "row": 1 },
+    { "id": "val", "type": "backend", "label": "validate", "stage": 3, "row": 0 },
+    { "id": "dst", "type": "database", "label": "用户 struct", "stage": 4, "row": 0 }
+  ],
+  "flows": [
+    { "from": "body", "to": "disp", "label": "Content-Type", "route": "straight" },
+    { "from": "param", "to": "disp", "label": "map[string][]string", "route": "straight" },
+    { "from": "disp", "to": "dec", "label": "body 类", "variant": "emphasis", "route": "straight" },
+    { "from": "disp", "to": "ref", "label": "表单类", "route": "bottom-channel" },
+    { "from": "dec", "to": "val", "label": "解码后", "route": "straight" },
+    { "from": "ref", "to": "val", "label": "映射后", "route": "straight" },
+    { "from": "val", "to": "dst", "label": "通过/报错", "variant": "emphasis", "route": "straight" }
+  ]
+}

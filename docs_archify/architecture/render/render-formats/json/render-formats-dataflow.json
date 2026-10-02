@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "响应渲染数据流",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1200, 480],
+    "output": "render/render-formats/render-formats-dataflow.html"
+  },
+  "stages": [
+    { "label": "业务对象" },
+    { "label": "序列化" },
+    { "label": "响应头" },
+    { "label": "写字节" },
+    { "label": "客户端" }
+  ],
+  "nodes": [
+    { "id": "obj", "type": "frontend", "label": "业务 Data", "stage": 0, "row": 0 },
+    { "id": "marshal", "type": "backend", "label": "Marshal 序列化", "stage": 1, "row": 0 },
+    { "id": "ct", "type": "backend", "label": "Content-Type", "stage": 2, "row": 0 },
+    { "id": "write", "type": "backend", "label": "w.Write", "stage": 3, "row": 0 },
+    { "id": "cli", "type": "database", "label": "HTTP 客户端", "stage": 4, "row": 0 }
+  ],
+  "flows": [
+    { "from": "obj", "to": "marshal", "label": "结构体", "variant": "emphasis", "route": "straight" },
+    { "from": "marshal", "to": "ct", "label": "字节", "route": "straight" },
+    { "from": "ct", "to": "write", "label": "MIME+body", "route": "straight" },
+    { "from": "write", "to": "cli", "label": "响应", "variant": "emphasis", "route": "straight" }
+  ]
+}

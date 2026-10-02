@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "请求期路由匹配时序",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "routing/routing-sequence.html",
+    "viewBox": [1180, 920]
+  },
+  "participants": [
+    { "id": "user", "type": "external", "label": "HTTP 请求方" },
+    { "id": "engine", "type": "backend", "label": "Engine" },
+    { "id": "path", "type": "backend", "label": "path 规范化" },
+    { "id": "tree", "type": "database", "label": "基数树" },
+    { "id": "ctx", "type": "backend", "label": "Context" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "user", "to": "engine", "y": 160, "label": "ServeHTTP 请求", "variant": "emphasis" },
+    { "id": "m2", "from": "engine", "to": "path", "y": 250, "label": "cleanPath(rPath)" },
+    { "id": "m3", "from": "path", "to": "engine", "y": 340, "label": "规范路径", "variant": "return" },
+    { "id": "m4", "from": "engine", "to": "tree", "y": 430, "label": "getValue(rPath, params)", "variant": "emphasis" },
+    { "id": "m5", "from": "tree", "to": "engine", "y": 520, "label": "nodeValue(handlers, tsr)", "variant": "return" },
+    { "id": "m6", "from": "engine", "to": "ctx", "y": 610, "label": "c.handlers=... c.Next()", "variant": "emphasis" },
+    { "id": "m7", "from": "ctx", "to": "engine", "y": 700, "label": "中间件链执行完成", "variant": "return" },
+    { "id": "m8", "from": "engine", "to": "user", "y": 790, "label": "HTTP 响应", "variant": "return" }
+  ]
+}

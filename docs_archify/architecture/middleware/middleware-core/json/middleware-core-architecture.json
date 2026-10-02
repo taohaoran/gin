@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "中间件链组合与执行架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "middleware/middleware-core/middleware-core-architecture.html"
+  },
+  "components": [
+    { "id": "client", "type": "external", "label": "HTTP 客户端", "pos": [40, 260], "size": [130, 60] },
+    { "id": "engine", "type": "backend", "label": "Engine.ServeHTTP", "pos": [240, 260], "size": [150, 60], "tag": "入口" },
+    { "id": "pool", "type": "backend", "label": "sync.Pool 上下文池", "pos": [240, 120], "size": [150, 60] },
+    { "id": "group", "type": "backend", "label": "RouterGroup 注册", "pos": [240, 420], "size": [150, 60] },
+    { "id": "tree", "type": "database", "label": "路由基数树", "pos": [460, 260], "size": [140, 60] },
+    { "id": "chain", "type": "backend", "label": "HandlersChain", "pos": [660, 260], "size": [150, 60], "tag": "中间件+处理器" },
+    { "id": "next", "type": "backend", "label": "c.Next 游标循环", "pos": [870, 260], "size": [150, 60] },
+    { "id": "statics", "type": "external", "label": "磁盘静态文件", "pos": [870, 420], "size": [150, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "gin 框架内", "wraps": ["engine", "pool", "group", "tree", "chain", "next"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "client", "to": "engine", "label": "请求", "variant": "emphasis" },
+    { "id": "c2", "from": "engine", "to": "pool", "label": "取/还 Context", "variant": "default" },
+    { "id": "c3", "from": "engine", "to": "tree", "label": "路由匹配", "variant": "emphasis" },
+    { "id": "c4", "from": "group", "to": "tree", "label": "注册烘焙链", "variant": "dashed" },
+    { "id": "c5", "from": "tree", "to": "chain", "label": "取出链", "variant": "default" },
+    { "id": "c6", "from": "chain", "to": "next", "label": "顺序执行", "variant": "emphasis" },
+    { "id": "c7", "from": "next", "to": "statics", "label": "静态文件", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": [
+      "注册期把中间件烘焙进路由树",
+      "请求期 c.Next 游标顺序执行",
+      "Abort 把游标打到 abortIndex 截断"
+    ] }
+  ]
+}

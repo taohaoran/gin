@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "handling 域架构",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "handling/handling-architecture.html"
+  },
+  "components": [
+    { "id": "client", "type": "external", "label": "HTTP 客户端", "pos": [40, 260], "size": [120, 55] },
+    { "id": "httpserver", "type": "external", "label": "http.Server", "pos": [220, 260], "size": [130, 55] },
+    { "id": "engine", "type": "backend", "label": "engine", "pos": [420, 250], "size": [120, 70], "tag": "请求分发" },
+    { "id": "pool", "type": "backend", "label": "Context 池", "pos": [610, 120], "size": [130, 55] },
+    { "id": "ctx", "type": "backend", "label": "context", "pos": [610, 240], "size": [120, 70], "tag": "每请求状态" },
+    { "id": "rw", "type": "backend", "label": "response-writer", "pos": [610, 380], "size": [150, 55] },
+    { "id": "routing", "type": "external", "label": "路由树", "pos": [820, 120], "size": [120, 55] },
+    { "id": "binding", "type": "external", "label": "binding 子包", "pos": [820, 240], "size": [140, 55] },
+    { "id": "render", "type": "external", "label": "render 子包", "pos": [820, 380], "size": [130, 55] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "handling 域", "wraps": ["engine", "pool", "ctx", "rw"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "client", "to": "httpserver", "label": "连接", "variant": "default" },
+    { "id": "c2", "from": "httpserver", "to": "engine", "label": "ServeHTTP", "variant": "emphasis" },
+    { "id": "c3", "from": "engine", "to": "pool", "label": "Get/Put", "variant": "default" },
+    { "id": "c4", "from": "pool", "to": "ctx", "label": "复用", "variant": "default" },
+    { "id": "c5", "from": "engine", "to": "routing", "label": "getValue", "variant": "emphasis" },
+    { "id": "c6", "from": "engine", "to": "ctx", "label": "Next", "variant": "emphasis" },
+    { "id": "c7", "from": "ctx", "to": "binding", "label": "Bind", "variant": "default" },
+    { "id": "c8", "from": "ctx", "to": "render", "label": "Render", "variant": "default" },
+    { "id": "c9", "from": "ctx", "to": "rw", "label": "写响应", "variant": "emphasis" },
+    { "id": "c10", "from": "rw", "to": "httpserver", "label": "字节流", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "域主路径", "items": [
+      "请求经 Engine 分发到 Context",
+      "Context 驱动中间件链",
+      "响应经 response-writer 写回"
+    ]}
+  ]
+}

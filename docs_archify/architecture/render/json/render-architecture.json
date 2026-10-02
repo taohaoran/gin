@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "render 域架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "render/render-architecture.html"
+  },
+  "components": [
+    { "id": "ctx", "type": "backend", "label": "Context 输出方法", "pos": [40, 290], "size": [150, 60], "tag": "JSON/String/HTML..." },
+    { "id": "core", "type": "backend", "label": "render-core", "pos": [320, 140], "size": [160, 60], "tag": "Render 接口/写头" },
+    { "id": "fmts", "type": "backend", "label": "render-formats", "pos": [320, 330], "size": [160, 60], "tag": "各渲染器实现" },
+    { "id": "extlib", "type": "external", "label": "序列化/模板库", "pos": [600, 330], "size": [150, 60] },
+    { "id": "rw", "type": "external", "label": "http.ResponseWriter", "pos": [600, 140], "size": [160, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "render 域", "wraps": ["core", "fmts"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "ctx", "to": "core", "label": "Render(code,r)", "variant": "emphasis" },
+    { "id": "c2", "from": "fmts", "to": "core", "label": "实现 Render" },
+    { "id": "c3", "from": "core", "to": "rw", "label": "写头/写体", "variant": "emphasis" },
+    { "id": "c4", "from": "fmts", "to": "extlib", "label": "序列化" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "域定位", "items": ["struct→HTTP 响应", "Content-Type 幂等写", "错误入 c.Errors"] }
+  ]
+}

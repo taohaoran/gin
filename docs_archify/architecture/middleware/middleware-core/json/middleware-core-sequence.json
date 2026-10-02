@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "请求链式执行时序图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [
+      1200,
+      1020
+    ],
+    "output": "middleware/middleware-core/middleware-core-sequence.html"
+  },
+  "participants": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "HTTP 客户端"
+    },
+    {
+      "id": "engine",
+      "type": "backend",
+      "label": "Engine"
+    },
+    {
+      "id": "pool",
+      "type": "backend",
+      "label": "Context 池"
+    },
+    {
+      "id": "tree",
+      "type": "database",
+      "label": "路由树"
+    },
+    {
+      "id": "chain",
+      "type": "backend",
+      "label": "中间件链"
+    },
+    {
+      "id": "handler",
+      "type": "backend",
+      "label": "业务处理器"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "client",
+      "to": "engine",
+      "y": 160,
+      "label": "HTTP 请求",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "engine",
+      "to": "pool",
+      "y": 230,
+      "label": "Get Context"
+    },
+    {
+      "id": "m3",
+      "from": "pool",
+      "to": "engine",
+      "y": 300,
+      "label": "返回 Context",
+      "variant": "return"
+    },
+    {
+      "id": "m4",
+      "from": "engine",
+      "to": "tree",
+      "y": 370,
+      "label": "getValue(rPath)"
+    },
+    {
+      "id": "m5",
+      "from": "tree",
+      "to": "engine",
+      "y": 440,
+      "label": "命中 handlers",
+      "variant": "return"
+    },
+    {
+      "id": "m6",
+      "from": "engine",
+      "to": "chain",
+      "y": 510,
+      "label": "c.Next() 启动链",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m8",
+      "from": "chain",
+      "to": "handler",
+      "y": 580,
+      "label": "执行主处理器"
+    },
+    {
+      "id": "m9",
+      "from": "handler",
+      "to": "chain",
+      "y": 650,
+      "label": "返回",
+      "variant": "return"
+    },
+    {
+      "id": "m10",
+      "from": "chain",
+      "to": "engine",
+      "y": 720,
+      "label": "链跑完",
+      "variant": "return"
+    },
+    {
+      "id": "m11",
+      "from": "engine",
+      "to": "pool",
+      "y": 790,
+      "label": "Put Context"
+    },
+    {
+      "id": "m12",
+      "from": "engine",
+      "to": "client",
+      "y": 860,
+      "label": "HTTP 响应",
+      "variant": "return"
+    }
+  ]
+}

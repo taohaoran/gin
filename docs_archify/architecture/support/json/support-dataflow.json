@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "support 域数据管道",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "support/support-dataflow.html"
+  },
+  "stages": [
+    {
+      "label": "来源"
+    },
+    {
+      "label": "聚合/适配"
+    },
+    {
+      "label": "编码"
+    },
+    {
+      "label": "目的地"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "frontend",
+      "label": "c.Error 错误",
+      "stage": 0,
+      "row": 0
+    },
+    {
+      "id": "n2",
+      "type": "frontend",
+      "label": "响应对象",
+      "stage": 0,
+      "row": 1
+    },
+    {
+      "id": "n3",
+      "type": "backend",
+      "label": "errorMsgs 聚合",
+      "stage": 1,
+      "row": 0
+    },
+    {
+      "id": "n4",
+      "type": "backend",
+      "label": "json.API",
+      "stage": 1,
+      "row": 1
+    },
+    {
+      "id": "n5",
+      "type": "external",
+      "label": "选中 JSON 库",
+      "stage": 2,
+      "row": 0
+    },
+    {
+      "id": "n6",
+      "type": "database",
+      "label": "HTTP 响应体",
+      "stage": 3,
+      "row": 0
+    }
+  ],
+  "flows": [
+    {
+      "from": "n1",
+      "to": "n3",
+      "label": "收集",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "from": "n2",
+      "to": "n4",
+      "label": "Marshal",
+      "route": "straight"
+    },
+    {
+      "from": "n4",
+      "to": "n5",
+      "label": "委托",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "from": "n5",
+      "to": "n6",
+      "label": "[]byte",
+      "variant": "emphasis",
+      "route": "straight"
+    }
+  ]
+}

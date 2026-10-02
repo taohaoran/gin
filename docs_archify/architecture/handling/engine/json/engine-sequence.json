@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "请求分发时序",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1200, 920],
+    "output": "handling/engine/engine-sequence.html"
+  },
+  "participants": [
+    { "id": "client", "type": "external", "label": "HTTP 客户端" },
+    { "id": "httpserver", "type": "external", "label": "http.Server" },
+    { "id": "engine", "type": "backend", "label": "Engine" },
+    { "id": "pool", "type": "backend", "label": "对象池" },
+    { "id": "tree", "type": "backend", "label": "路由树" },
+    { "id": "ctx", "type": "backend", "label": "Context" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "client", "to": "httpserver", "y": 160, "label": "HTTP 请求", "variant": "emphasis" },
+    { "id": "m2", "from": "httpserver", "to": "engine", "y": 230, "label": "ServeHTTP(w, req)", "variant": "emphasis" },
+    { "id": "m3", "from": "engine", "to": "pool", "y": 300, "label": "Get() 取 Context" },
+    { "id": "m4", "from": "pool", "to": "engine", "y": 360, "label": "复用 *Context", "variant": "return" },
+    { "id": "m5", "from": "engine", "to": "tree", "y": 430, "label": "getValue(rPath, params)" },
+    { "id": "m6", "from": "tree", "to": "engine", "y": 490, "label": "handlers + 路径参数", "variant": "return" },
+    { "id": "m7", "from": "engine", "to": "ctx", "y": 560, "label": "c.Next() 执行链", "variant": "emphasis" },
+    { "id": "m8", "from": "ctx", "to": "engine", "y": 620, "label": "链结束, 写头", "variant": "return" },
+    { "id": "m9", "from": "engine", "to": "pool", "y": 680, "label": "Put(c) 回收" },
+    { "id": "m10", "from": "engine", "to": "httpserver", "y": 740, "label": "ResponseWriter 就绪", "variant": "return" },
+    { "id": "m11", "from": "httpserver", "to": "client", "y": 800, "label": "HTTP 响应", "variant": "return" }
+  ]
+}

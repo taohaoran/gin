@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "render-core 架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "render/render-core/render-core-architecture.html"
+  },
+  "components": [
+    { "id": "ctx", "type": "backend", "label": "Context.Render", "pos": [40, 290], "size": [150, 60], "tag": "context.go:1202" },
+    { "id": "rif", "type": "backend", "label": "Render 接口", "pos": [300, 160], "size": [150, 60], "tag": "Render/WriteContentType" },
+    { "id": "wrc", "type": "backend", "label": "writeContentType", "pos": [300, 300], "size": [150, 60], "tag": "仅在未设置时写" },
+    { "id": "hrif", "type": "backend", "label": "HTMLRender 子接口", "pos": [300, 440], "size": [150, 60], "tag": "Instance 工厂" },
+    { "id": "impl", "type": "backend", "label": "各渲染器实现", "pos": [560, 290], "size": [150, 60], "tag": "render-formats" },
+    { "id": "rw", "type": "external", "label": "http.ResponseWriter", "pos": [820, 290], "size": [160, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "渲染抽象协议", "wraps": ["rif", "wrc", "hrif"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "ctx", "to": "rif", "label": "Render(code,r)", "variant": "emphasis" },
+    { "id": "c2", "from": "impl", "to": "rif", "label": "实现" },
+    { "id": "c3", "from": "hrif", "to": "rif", "label": "扩展" },
+    { "id": "c4", "from": "rif", "to": "wrc", "label": "写头" },
+    { "id": "c5", "from": "rif", "to": "rw", "label": "Render 写体", "variant": "emphasis" },
+    { "id": "c6", "from": "wrc", "to": "rw", "label": "Content-Type" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "写响应协议", "items": ["先 Status 再写头", "无 body 状态仅写头", "渲染错入 c.Errors"] }
+  ]
+}

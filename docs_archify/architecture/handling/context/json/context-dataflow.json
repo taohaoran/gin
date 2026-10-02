@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "请求数据绑定与渲染流",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1200, 620],
+    "output": "handling/context/context-dataflow.html"
+  },
+  "stages": [
+    { "label": "请求输入" },
+    { "label": "解析缓存" },
+    { "label": "绑定" },
+    { "label": "业务处理" },
+    { "label": "渲染输出" }
+  ],
+  "nodes": [
+    { "id": "req", "type": "frontend", "label": "http.Request", "stage": 0, "row": 1 },
+    { "id": "params", "type": "backend", "label": "路径参数", "stage": 1, "row": 0 },
+    { "id": "qcache", "type": "backend", "label": "queryCache", "stage": 1, "row": 1 },
+    { "id": "fcache", "type": "backend", "label": "formCache", "stage": 1, "row": 2 },
+    { "id": "bind", "type": "external", "label": "binding 绑定", "stage": 2, "row": 1 },
+    { "id": "keys", "type": "database", "label": "业务对象 Keys", "stage": 3, "row": 1 },
+    { "id": "render", "type": "external", "label": "render 渲染", "stage": 4, "row": 0 },
+    { "id": "writer", "type": "external", "label": "ResponseWriter", "stage": 4, "row": 2 }
+  ],
+  "flows": [
+    { "from": "req", "to": "params", "label": "路径", "route": "top-channel" },
+    { "from": "req", "to": "qcache", "label": "query", "route": "straight" },
+    { "from": "req", "to": "fcache", "label": "body", "route": "bottom-channel" },
+    { "from": "params", "to": "bind", "label": "Uri", "route": "straight" },
+    { "from": "qcache", "to": "bind", "label": "Query", "route": "straight" },
+    { "from": "fcache", "to": "bind", "label": "Form", "route": "straight" },
+    { "from": "bind", "to": "keys", "label": "反序列化", "variant": "emphasis", "route": "straight" },
+    { "from": "keys", "to": "render", "label": "业务数据", "variant": "emphasis", "route": "top-channel" },
+    { "from": "render", "to": "writer", "label": "写出", "labelDy": 30, "variant": "emphasis", "route": "straight" }
+  ]
+}

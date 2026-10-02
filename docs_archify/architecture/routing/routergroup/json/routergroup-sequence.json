@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "单条路由注册调用时序",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "routing/routergroup/routergroup-sequence.html",
+    "viewBox": [1080, 860]
+  },
+  "participants": [
+    { "id": "user", "type": "external", "label": "用户代码" },
+    { "id": "group", "type": "backend", "label": "RouterGroup" },
+    { "id": "engine", "type": "backend", "label": "Engine" },
+    { "id": "tree", "type": "database", "label": "基数树 node" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "user", "to": "group", "y": 160, "label": "GET(\"/api/x\", h)", "variant": "emphasis" },
+    { "id": "m2", "from": "group", "to": "engine", "y": 260, "label": "addRoute(method, 绝对路径, 处理链)", "variant": "emphasis" },
+    { "id": "m3", "from": "engine", "to": "tree", "y": 360, "label": "root.addRoute(path, handlers)", "variant": "emphasis" },
+    { "id": "m4", "from": "tree", "to": "engine", "y": 460, "label": "插入完成 / 冲突 panic", "variant": "return" },
+    { "id": "m5", "from": "engine", "to": "group", "y": 560, "label": "更新 maxParams/maxSections", "variant": "return" },
+    { "id": "m6", "from": "group", "to": "user", "y": 660, "label": "returnObj() 返回 IRoutes", "variant": "return" }
+  ]
+}

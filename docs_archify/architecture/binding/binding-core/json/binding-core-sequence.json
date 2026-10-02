@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "表单/查询参数绑定调用链时序",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1280, 760],
+    "column_fit": "spread",
+    "output": "binding/binding-core/binding-core-sequence.html"
+  },
+  "participants": [
+    { "id": "ctx", "type": "backend", "label": "Context" },
+    { "id": "qb", "type": "backend", "label": "查询绑定" },
+    { "id": "mft", "type": "backend", "label": "标签映射" },
+    { "id": "mp", "type": "backend", "label": "反射遍历" },
+    { "id": "sbf", "type": "backend", "label": "字段赋值" },
+    { "id": "dv", "type": "backend", "label": "校验器" },
+    { "id": "ext", "type": "external", "label": "校验引擎" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "ctx", "to": "qb", "y": 170, "label": "ShouldBindQuery→Bind(req)", "variant": "emphasis" },
+    { "id": "m2", "from": "qb", "to": "mft", "y": 230, "label": "URL.Query()→mapForm" },
+    { "id": "m3", "from": "mft", "to": "mp", "y": 290, "label": "mappingByPtr 遍历字段" },
+    { "id": "m4", "from": "mp", "to": "sbf", "y": 350, "label": "TrySet 按 tag 取值" },
+    { "id": "m5", "from": "sbf", "to": "mp", "y": 400, "label": "类型转换写回", "variant": "return" },
+    { "id": "m6", "from": "qb", "to": "dv", "y": 460, "label": "validate(obj)" },
+    { "id": "m7", "from": "dv", "to": "ext", "y": 520, "label": "Struct 校验(懒加载)" },
+    { "id": "m8", "from": "ext", "to": "dv", "y": 580, "label": "错误或 nil", "variant": "return" },
+    { "id": "m9", "from": "dv", "to": "qb", "y": 640, "label": "返回校验结果", "variant": "return" }
+  ]
+}

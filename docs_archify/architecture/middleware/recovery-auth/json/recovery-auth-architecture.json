@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Recovery 与 BasicAuth 组件图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "middleware/recovery-auth/recovery-auth-architecture.html"
+  },
+  "components": [
+    { "id": "client", "type": "external", "label": "HTTP 客户端", "pos": [40, 220], "size": [120, 60] },
+    { "id": "rec", "type": "backend", "label": "Recovery defer 包壳", "pos": [220, 120], "size": [160, 60], "tag": "崩恢复" },
+    { "id": "auth", "type": "security", "label": "BasicAuth 校验", "pos": [220, 320], "size": [160, 60], "tag": "鉴权" },
+    { "id": "next", "type": "backend", "label": "下游业务链", "pos": [450, 220], "size": [150, 60] },
+    { "id": "stack", "type": "backend", "label": "stack 堆栈打印", "pos": [450, 60], "size": [150, 60] },
+    { "id": "cred", "type": "backend", "label": "authPairs 预编译", "pos": [450, 400], "size": [150, 60] },
+    { "id": "writer", "type": "external", "label": "错误日志 writer", "pos": [680, 120], "size": [150, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "recovery.go + auth.go", "wraps": ["rec", "auth", "next", "stack", "cred"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "client", "to": "rec", "label": "请求", "variant": "emphasis" },
+    { "id": "c2", "from": "rec", "to": "next", "label": "c.Next()", "variant": "emphasis" },
+    { "id": "c3", "from": "auth", "to": "next", "label": "放行", "variant": "default" },
+    { "id": "c4", "from": "next", "to": "stack", "label": "panic", "variant": "dashed" },
+    { "id": "c5", "from": "stack", "to": "writer", "label": "转储", "variant": "dashed" },
+    { "id": "c6", "from": "auth", "to": "cred", "label": "常量时间比较", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": [
+      "defer recover 把 panic 转 500",
+      "断连 EPIPE 不打堆栈",
+      "BasicAuth 常量时间比较防时序攻击"
+    ] }
+  ]
+}

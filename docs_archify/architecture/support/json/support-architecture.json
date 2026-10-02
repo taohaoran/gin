@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "support 域架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "support/support-architecture.html"
+  },
+  "components": [
+    { "id": "consumer", "type": "frontend", "label": "框架各域消费方", "pos": [40, 220], "size": [150, 60] },
+    { "id": "err", "type": "backend", "label": "errors 错误聚合", "pos": [280, 110], "size": [160, 60], "tag": "errors 叶" },
+    { "id": "util", "type": "backend", "label": "utils/internal 工具", "pos": [280, 320], "size": [160, 60], "tag": "internal-utils 叶" },
+    { "id": "codec", "type": "backend", "label": "codec/json 接口", "pos": [520, 320], "size": [160, 60] },
+    { "id": "backend", "type": "external", "label": "四 JSON 后端", "pos": [740, 320], "size": [150, 60] },
+    { "id": "out", "type": "external", "label": "JSON 字节流", "pos": [740, 110], "size": [150, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "support 域", "wraps": ["err", "util", "codec"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "consumer", "to": "err", "label": "c.Error", "variant": "emphasis" },
+    { "id": "c2", "from": "consumer", "to": "util", "label": "辅助调用", "variant": "default" },
+    { "id": "c3", "from": "err", "to": "out", "label": "序列化", "variant": "emphasis" },
+    { "id": "c4", "from": "util", "to": "codec", "label": "使用", "variant": "dashed" },
+    { "id": "c5", "from": "codec", "to": "backend", "label": "build tag", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "域要点", "items": [
+      "errors 聚合 + internal 工具",
+      "codec/json 可插拔多后端",
+      "被各域消费、不反向依赖"
+    ] }
+  ]
+}

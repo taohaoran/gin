@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "middleware 域架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "middleware/middleware-architecture.html"
+  },
+  "components": [
+    { "id": "client", "type": "external", "label": "HTTP 客户端", "pos": [40, 230], "size": [120, 60] },
+    { "id": "core", "type": "backend", "label": "链协议 Next/Abort", "pos": [230, 230], "size": [160, 60], "tag": "middleware-core" },
+    { "id": "logger", "type": "backend", "label": "Logger 日志", "pos": [450, 110], "size": [140, 55] },
+    { "id": "rec", "type": "backend", "label": "Recovery 恢复", "pos": [450, 200], "size": [140, 55] },
+    { "id": "auth", "type": "security", "label": "BasicAuth 鉴权", "pos": [450, 290], "size": [140, 55] },
+    { "id": "static", "type": "backend", "label": "静态文件服务", "pos": [450, 380], "size": [140, 55] },
+    { "id": "biz", "type": "backend", "label": "业务处理器", "pos": [660, 230], "size": [140, 60] },
+    { "id": "fs", "type": "external", "label": "磁盘/标准库", "pos": [660, 380], "size": [140, 55] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "middleware 域", "wraps": ["core", "logger", "rec", "auth", "static"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "client", "to": "core", "label": "请求", "variant": "emphasis" },
+    { "id": "c2", "from": "core", "to": "logger", "label": "链驱动", "variant": "default" },
+    { "id": "c3", "from": "logger", "to": "rec", "label": "下游", "variant": "default" },
+    { "id": "c4", "from": "rec", "to": "auth", "label": "下游", "variant": "default" },
+    { "id": "c5", "from": "auth", "to": "biz", "label": "放行", "variant": "emphasis" },
+    { "id": "c6", "from": "static", "to": "fs", "label": "serve", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "域要点", "items": [
+      "所有中间件共享同一 Next/Abort 游标协议",
+      "Logger/Recovery 包在链首",
+      "BasicAuth 失败 AbortWithStatus 截断"
+    ] }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "cleanPath 规范化数据流",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "routing/path/path-dataflow.html",
+    "viewBox": [1200, 620]
+  },
+  "stages": [
+    { "label": "原始路径" },
+    { "label": "预处理" },
+    { "label": "逐段扫描" },
+    { "label": ".. 回退" },
+    { "label": "规范路径" }
+  ],
+  "nodes": [
+    { "id": "n0", "type": "frontend", "label": "原始路径 p", "stage": 0, "row": 0 },
+    { "id": "n1", "type": "backend", "label": "补前导 / 记录尾斜杠", "stage": 1, "row": 0 },
+    { "id": "n2", "type": "backend", "label": "多斜杠跳过", "stage": 2, "row": 0 },
+    { "id": "n3", "type": "backend", "label": ". 段跳过", "stage": 2, "row": 1 },
+    { "id": "n4", "type": "backend", "label": ".. 段触发回退", "stage": 2, "row": 2 },
+    { "id": "n5", "type": "backend", "label": "w 回退到上一 /", "stage": 3, "row": 0 },
+    { "id": "n6", "type": "database", "label": "规范路径", "stage": 4, "row": 0 }
+  ],
+  "flows": [
+    { "from": "n0", "to": "n1", "label": "路径", "variant": "emphasis", "route": "straight" },
+    { "from": "n1", "to": "n2", "label": "逐字节" },
+    { "from": "n1", "to": "n3", "label": "命中 .", "route": "vertical-channel" },
+    { "from": "n1", "to": "n4", "label": "命中 ..", "route": "vertical-channel" },
+    { "from": "n4", "to": "n5", "label": "回退写指针" },
+    { "from": "n2", "to": "n6", "label": "保留段", "variant": "emphasis", "route": "bottom-channel" },
+    { "from": "n3", "to": "n6", "label": "丢弃", "route": "bottom-channel" },
+    { "from": "n5", "to": "n6", "label": "重写后" }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "JSON 编解码数据流",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "support/internal-utils/internal-utils-dataflow.html"
+  },
+  "stages": [
+    { "label": "业务对象" },
+    { "label": "接口分发" },
+    { "label": "后端编码" },
+    { "label": "字节流" }
+  ],
+  "nodes": [
+    { "id": "n1", "type": "frontend", "label": "H/Error/结构体", "stage": 0, "row": 0 },
+    { "id": "n2", "type": "backend", "label": "json.API.Marshal", "stage": 1, "row": 0 },
+    { "id": "n3", "type": "external", "label": "选中的 JSON 库", "stage": 2, "row": 0 },
+    { "id": "n4", "type": "database", "label": "HTTP 响应体", "stage": 3, "row": 0 }
+  ],
+  "flows": [
+    { "from": "n1", "to": "n2", "label": "v any", "variant": "emphasis", "route": "straight" },
+    { "from": "n2", "to": "n3", "label": "委托", "variant": "emphasis", "route": "straight" },
+    { "from": "n3", "to": "n4", "label": "[]byte", "variant": "emphasis", "route": "straight" }
+  ]
+}

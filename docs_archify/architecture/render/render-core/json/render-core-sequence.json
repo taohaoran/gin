@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Context.Render 写响应时序",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1080, 720],
+    "column_fit": "spread",
+    "output": "render/render-core/render-core-sequence.html"
+  },
+  "participants": [
+    { "id": "ctx", "type": "backend", "label": "Context" },
+    { "id": "r", "type": "backend", "label": "Render 实例" },
+    { "id": "rw", "type": "external", "label": "ResponseWriter" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "ctx", "to": "rw", "y": 170, "label": "c.Status(code) 写状态码", "variant": "emphasis" },
+    { "id": "m2", "from": "ctx", "to": "r", "y": 240, "label": "无 body 状态? 仅 WriteContentType" },
+    { "id": "m3", "from": "r", "to": "rw", "y": 300, "label": "WriteContentType 写头" },
+    { "id": "m4", "from": "ctx", "to": "r", "y": 370, "label": "r.Render(w) 渲染体", "variant": "emphasis" },
+    { "id": "m5", "from": "r", "to": "rw", "y": 430, "label": "序列化并 w.Write" },
+    { "id": "m6", "from": "rw", "to": "r", "y": 490, "label": "写入字节数/错误", "variant": "return" },
+    { "id": "m7", "from": "r", "to": "ctx", "y": 560, "label": "error→c.Error+Abort", "variant": "return" }
+  ]
+}

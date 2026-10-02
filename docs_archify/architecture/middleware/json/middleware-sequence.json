@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "一次请求跨中间件链时序",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1200, 900],
+    "output": "middleware/middleware-sequence.html"
+  },
+  "participants": [
+    { "id": "client", "type": "external", "label": "客户端" },
+    { "id": "logger", "type": "backend", "label": "Logger" },
+    { "id": "rec", "type": "backend", "label": "Recovery" },
+    { "id": "auth", "type": "security", "label": "BasicAuth" },
+    { "id": "biz", "type": "backend", "label": "业务" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "client", "to": "logger", "y": 160, "label": "请求", "variant": "emphasis" },
+    { "id": "m2", "from": "logger", "to": "rec", "y": 240, "label": "c.Next()", "variant": "emphasis" },
+    { "id": "m3", "from": "rec", "to": "auth", "y": 320, "label": "c.Next() defer", "variant": "emphasis" },
+    { "id": "m4", "from": "auth", "to": "biz", "y": 400, "label": "校验通过 c.Next()" },
+    { "id": "m5", "from": "biz", "to": "auth", "y": 480, "label": "业务响应", "variant": "return" },
+    { "id": "m6", "from": "auth", "to": "rec", "y": 560, "label": "返回", "variant": "return" },
+    { "id": "m7", "from": "rec", "to": "logger", "y": 640, "label": "返回", "variant": "return" },
+    { "id": "m8", "from": "logger", "to": "client", "y": 720, "label": "写日志+响应", "variant": "return" }
+  ]
+}

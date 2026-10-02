@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Context 结构与依赖",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "handling/context/context-architecture.html"
+  },
+  "components": [
+    { "id": "engine", "type": "backend", "label": "Engine 反指针", "pos": [40, 250], "size": [130, 60] },
+    { "id": "ctx", "type": "backend", "label": "Context", "pos": [250, 240], "size": [130, 80], "tag": "每请求状态" },
+    { "id": "writermem", "type": "backend", "label": "writermem", "pos": [460, 90], "size": [130, 55] },
+    { "id": "handlers", "type": "backend", "label": "handlers 链", "pos": [460, 180], "size": [130, 55] },
+    { "id": "params", "type": "backend", "label": "Params 路径参数", "pos": [460, 270], "size": [140, 55] },
+    { "id": "keys", "type": "database", "label": "Keys 键值", "pos": [460, 360], "size": [130, 55] },
+    { "id": "cache", "type": "database", "label": "query/form 缓存", "pos": [460, 450], "size": [150, 55] },
+    { "id": "binding", "type": "external", "label": "binding 子包", "pos": [680, 180], "size": [130, 55] },
+    { "id": "render", "type": "external", "label": "render 子包", "pos": [680, 90], "size": [130, 55] },
+    { "id": "stdhttp", "type": "external", "label": "http.ResponseWriter", "pos": [680, 450], "size": [160, 55] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Context 内部状态", "wraps": ["ctx", "writermem", "handlers", "params", "keys", "cache"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "engine", "to": "ctx", "label": "反指针", "variant": "default" },
+    { "id": "c2", "from": "ctx", "to": "writermem", "label": "写响应", "variant": "emphasis" },
+    { "id": "c3", "from": "ctx", "to": "handlers", "label": "Next 推进", "variant": "emphasis" },
+    { "id": "c4", "from": "ctx", "to": "params", "label": "Param 取值", "variant": "default" },
+    { "id": "c5", "from": "ctx", "to": "keys", "label": "Set/Get", "variant": "default" },
+    { "id": "c6", "from": "ctx", "to": "cache", "label": "懒加载", "variant": "default" },
+    { "id": "c7", "from": "ctx", "to": "binding", "label": "ShouldBind", "variant": "default" },
+    { "id": "c8", "from": "ctx", "to": "render", "label": "Render", "variant": "emphasis" },
+    { "id": "c9", "from": "writermem", "to": "stdhttp", "label": "包装底层", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": [
+      "Context 由 sync.Pool 复用",
+      "handler 链用 index 游标推进",
+      "Keys 用 RWMutex 保护"
+    ]}
+  ]
+}

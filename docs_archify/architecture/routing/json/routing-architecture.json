@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "routing 域整体架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "routing/routing-architecture.html"
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "HTTP 请求方", "pos": [60, 90], "size": [140, 60] },
+    { "id": "engine", "type": "backend", "label": "Engine", "pos": [360, 90], "size": [140, 60] },
+    { "id": "group", "type": "backend", "label": "RouterGroup 路由组", "pos": [360, 220], "size": [160, 60] },
+    { "id": "path", "type": "backend", "label": "path 路径规范化", "pos": [640, 220], "size": [160, 60] },
+    { "id": "tree", "type": "database", "label": "基数树 tree", "pos": [640, 350], "size": [140, 60] },
+    { "id": "context", "type": "backend", "label": "Context 下游", "pos": [360, 350], "size": [150, 60], "tag": "域外交互" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "routing 域（routergroup/tree/path）", "wraps": ["engine", "group", "path", "tree"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "user", "to": "engine", "label": "注册/请求", "variant": "emphasis" },
+    { "id": "c2", "from": "engine", "to": "group", "label": "注册路由" },
+    { "id": "c3", "from": "group", "to": "tree", "label": "addRoute 写入", "variant": "emphasis" },
+    { "id": "c4", "from": "engine", "to": "path", "label": "RemoveExtraSlash" },
+    { "id": "c5", "from": "path", "to": "tree", "label": "规范路径" },
+    { "id": "c6", "from": "tree", "to": "context", "label": "getValue 返回 handlers", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "域职责", "items": [
+      "注册期：组拼路径与中间件",
+      "运行期：规范化后树匹配",
+      "输出：handlers 链 + Params"
+    ] }
+  ]
+}

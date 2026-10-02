@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "路由组与路由注册架构图",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "output": "routing/routergroup/routergroup-architecture.html"
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "用户代码", "pos": [70, 70], "size": [140, 60] },
+    { "id": "engine", "type": "backend", "label": "Engine 根引擎", "pos": [390, 70], "size": [150, 60], "tag": "root=true" },
+    { "id": "group", "type": "backend", "label": "RouterGroup 路由组", "pos": [390, 200], "size": [160, 60] },
+    { "id": "subgroup", "type": "backend", "label": "嵌套子组", "pos": [660, 200], "size": [150, 60], "tag": "Group派生" },
+    { "id": "combine", "type": "backend", "label": "combineHandlers", "pos": [390, 330], "size": [160, 60] },
+    { "id": "chain", "type": "backend", "label": "合并后处理链", "pos": [660, 330], "size": [150, 60] },
+    { "id": "addroute", "type": "backend", "label": "engine.addRoute", "pos": [660, 460], "size": [150, 60] },
+    { "id": "tree", "type": "database", "label": "基数树 tree", "pos": [390, 460], "size": [150, 60], "tag": "下游叶子" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "路由组与注册层（routergroup.go）", "wraps": ["engine", "group", "subgroup", "combine", "chain", "addroute"] }
+  ],
+  "connections": [
+    { "id": "c1", "from": "user", "to": "engine", "label": "GET/POST 注册", "variant": "emphasis" },
+    { "id": "c2", "from": "engine", "to": "group", "label": "内嵌 RouterGroup" },
+    { "id": "c3", "from": "group", "to": "subgroup", "label": "Group 派生", "variant": "emphasis" },
+    { "id": "c4", "from": "group", "to": "combine", "label": "合并中间件" },
+    { "id": "c5", "from": "subgroup", "to": "combine", "label": "合并中间件" },
+    { "id": "c6", "from": "combine", "to": "chain", "label": "产出链" },
+    { "id": "c7", "from": "chain", "to": "addroute", "label": "传入链" },
+    { "id": "c8", "from": "addroute", "to": "tree", "label": "写入路由", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "要点", "items": [
+      "根组 root=true 返回 Engine",
+      "子组复制父链再追加",
+      "GET/POST 仅转调 handle"
+    ] }
+  ]
+}

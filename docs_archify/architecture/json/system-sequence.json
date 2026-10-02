@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": { "title": "gin 请求生命周期时序", "output": "system-sequence.html", "quality_profile": "standard", "locale": "zh-CN", "viewBox": [1180, 800], "column_fit": "spread" },
+  "participants": [
+    { "id": "client",  "type": "external", "label": "HTTP 客户端" },
+    { "id": "nethttp", "type": "external", "label": "net/http" },
+    { "id": "engine",  "type": "backend",  "label": "Engine" },
+    { "id": "tree",    "type": "backend",  "label": "路由树" },
+    { "id": "mw",      "type": "backend",  "label": "中间件链" },
+    { "id": "handler", "type": "backend",  "label": "业务处理器" },
+    { "id": "rw",      "type": "backend",  "label": "响应写入" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "client",  "to": "nethttp", "y": 160, "label": "HTTP 请求", "variant": "emphasis" },
+    { "id": "m2", "from": "nethttp", "to": "engine",  "y": 220, "label": "ServeHTTP 分发", "variant": "emphasis" },
+    { "id": "m3", "from": "engine",  "to": "tree",    "y": 280, "label": "getValue 匹配路由" },
+    { "id": "m4", "from": "tree",    "to": "engine",  "y": 340, "label": "返回处理器链", "variant": "return" },
+    { "id": "m5", "from": "engine",  "to": "mw",      "y": 400, "label": "c.Next 进入中间件链", "variant": "emphasis" },
+    { "id": "m6", "from": "mw",      "to": "handler", "y": 460, "label": "调用业务处理器", "variant": "emphasis" },
+    { "id": "m7", "from": "handler", "to": "engine",  "y": 520, "label": "c.Render 输出", "variant": "emphasis" },
+    { "id": "m8", "from": "engine",  "to": "rw",      "y": 580, "label": "WriteHeaderNow/Write" },
+    { "id": "m9", "from": "rw",      "to": "nethttp", "y": 640, "label": "写入响应体" },
+    { "id": "m10", "from": "nethttp", "to": "client", "y": 700, "label": "HTTP 响应返回", "variant": "return" }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "render 域响应输出数据流",
+    "quality_profile": "showcase",
+    "locale": "zh-CN",
+    "viewBox": [1100, 460],
+    "output": "render/render-dataflow.html"
+  },
+  "stages": [
+    { "label": "业务数据" },
+    { "label": "选渲染器" },
+    { "label": "序列化" },
+    { "label": "HTTP 响应" }
+  ],
+  "nodes": [
+    { "id": "biz", "type": "frontend", "label": "struct/H 映射", "stage": 0, "row": 0 },
+    { "id": "pick", "type": "backend", "label": "JSON/HTML/...", "stage": 1, "row": 0 },
+    { "id": "ser", "type": "backend", "label": "Marshal/模板", "stage": 2, "row": 0 },
+    { "id": "resp", "type": "database", "label": "头+体→客户端", "stage": 3, "row": 0 }
+  ],
+  "flows": [
+    { "from": "biz", "to": "pick", "label": "输出方法", "route": "straight" },
+    { "from": "pick", "to": "ser", "label": "Data", "variant": "emphasis", "route": "straight" },
+    { "from": "ser", "to": "resp", "label": "字节", "variant": "emphasis", "route": "straight" }
+  ]
+}
