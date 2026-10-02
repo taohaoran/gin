@@ -1,8 +1,17 @@
-# Deploy Gin Architecture Docs to GitHub Pages
-# 内容源优先级:
-#   1) docs_archify/ 存在 → 站点内容严格等于该目录（不混入 docs/）
-#   2) 不存在 → 回退部署 docs/
-# 构建时 md 自动渲染为 html，并生成导览 index.html 作为站点根入口
+# GitHub Pages 部署 workflow（GitHub Actions 发布源）
+# 内容源严格四级优先级（核心行为）: 按顺序取第一个存在的目录作为部署源，站点内容严格等于所选目录内容，不混入其他目录。
+#   1) docs_archify/architecture_improve   （archify 源根兼容 -archify 命名）
+#   2) docs_archify/architecture
+#   3) docs/architecture_improve
+#   4) docs/architecture
+#   均不存在时回退部署 docs/ 根。
+#   所选源目录必须提交进仓库（否则运行器检出后看不到，会按下一级回退）；其变更（push）同样触发部署。
+# 导览与渲染强制:
+#   - 选源后固定运行 scripts/build-docs-html.py site/（脚本必须已入库）:
+#       a) md 默认转 html：递归渲染所有 .md → 同名 .html（.md 保留为源，相对 .md 链接改写为 .html）
+#       b) 强制生成导览 index.html：按「系统级 → 域级 → 页级」三级中文层级组织
+#       c) 除根 index.html 外所有 .html（含源里自带的交互式图）注入左上角固定「←」返回导览按钮（幂等）
+#   - 构建统一输出到独立 site/ 目录（不修改源目录），并写入 .nojekyll
 name: Deploy Gin Architecture Docs to GitHub Pages
 
 on:
@@ -12,6 +21,7 @@ on:
       - 'docs/**'
       - 'docs-archify/**'
       - 'docs_archify/**'
+      - 'scripts/build-docs-html.py'
   workflow_dispatch:
 
 permissions:
@@ -29,23 +39,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # ---- 内容源选择：archify 源存在则严格按它部署，否则回退 docs ----
-      - name: Build site content (archify source priority)
+      # ---- 内容源严格四级优先级选源：archify 根下优先/回退子目录 → 部署根下优先/回退子目录 → 均无则回退部署根 ----
+      - name: Build site content (strict 4-level source priority)
         run: |
           set -euo pipefail
           rm -rf site && mkdir -p site
-          if [ -d "docs-archify" ] || [ -d "docs_archify" ]; then
-            SRC=""
-            if [ -d "docs-archify" ]; then SRC="docs-archify"; else SRC="docs_archify"; fi
+          SRC=""
+          ARCH_ROOT=""
+          if [ -d "docs_archify" ]; then ARCH_ROOT="docs_archify"
+          elif [ -d "docs-archify" ]; then ARCH_ROOT="docs-archify"
+          fi
+          if [ -n "$ARCH_ROOT" ] && [ -d "$ARCH_ROOT/architecture_improve" ]; then
+            SRC="$ARCH_ROOT/architecture_improve"
+          elif [ -n "$ARCH_ROOT" ] && [ -d "$ARCH_ROOT/architecture" ]; then
+            SRC="$ARCH_ROOT/architecture"
+          elif [ -d "docs/architecture_improve" ]; then
+            SRC="docs/architecture_improve"
+          elif [ -d "docs/architecture" ]; then
+            SRC="docs/architecture"
+          fi
+          if [ -n "$SRC" ]; then
             echo "==> $SRC found -> deploying its content strictly"
             cp -R "$SRC/." site/
           else
-            echo "==> no archify source dir found -> deploying docs"
+            echo "==> none of the priority subdirs found -> deploying docs root"
             cp -R docs/. site/
           fi
-          # ---- md 默认转 html + 强制生成导览 index.md 并渲染为 index.html ----
+          # ---- md 默认转 html + 强制生成导览 index.md（链接全部 md 与 html）并渲染为 index.html + 全站返回按钮 ----
           pip install --quiet markdown
-          python3 scripts/build-docs-html.py site --site-name "Gin 架构文档" --group-label "architecture=架构"
+          python3 scripts/build-docs-html.py site --site-name "Gin 架构文档" --group-label "architecture=架构" --label-map "binding=绑定|binding-core=绑定核心|binding-formats=绑定格式|handling=请求处理|context=上下文|engine=引擎|response-writer=响应写入|middleware=中间件|logger=日志|middleware-core=中间件核心|recovery-auth=恢复与鉴权|render=渲染|render-core=渲染核心|render-formats=渲染格式|routing=路由|path=路径|routergroup=路由组|tree=路由树|support=支撑组件|errors=错误处理|internal-utils=内部工具|json=JSON|system=系统"
           touch site/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
